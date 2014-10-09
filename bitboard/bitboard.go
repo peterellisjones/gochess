@@ -4,6 +4,11 @@ import (
 	sq "github.com/peterellisjones/gochess/square"
 )
 
+func (bitboard Bitboard) Set(square sq.Square) Bitboard {
+	mask := Bitboard(1) << square
+	return Bitboard(bitboard | mask)
+}
+
 // IsSet returns true if bit is set
 func (bitboard Bitboard) IsSet(square sq.Square) bool {
 	mask := Bitboard(1) << square

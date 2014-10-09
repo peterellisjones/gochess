@@ -2,7 +2,6 @@ package fen
 
 import (
 	"errors"
-	"fmt"
 	"github.com/peterellisjones/gochess/castling"
 	"github.com/peterellisjones/gochess/piece"
 	"github.com/peterellisjones/gochess/side"
@@ -12,7 +11,7 @@ import (
 )
 
 type Parts struct {
-	board          [64]piece.Piece
+	Board          [64]piece.Piece
 	SideToMove     side.Side
 	CastlingRights castling.CastlingRight
 	EpSquare       square.Square
@@ -31,14 +30,12 @@ func FenParts(fen string) (Parts, error) {
 
 	arr := strings.Split(fen, " ")
 
-	board := arr[0]
-	rows := strings.Split(board, "/")
-	if len(rows) != 8 {
-		return parts, errors.New(fmt.Sprintf("Couldn't find 8 rows in fen: %s", fen))
-	}
-
-	for i := 0; i < 8; i++ {
-		parts.rows[i] = rows[7-i]
+	if len(arr) > 0 {
+		board, err := parseBoard(arr[0])
+		if err != nil {
+			return parts, err
+		}
+		parts.Board = board
 	}
 
 	if len(arr) > 1 {
@@ -82,6 +79,37 @@ func FenParts(fen string) (Parts, error) {
 	}
 
 	return parts, nil
+}
+
+func parseBoard(str string) ([64]piece.Piece, error) {
+	board := [64]piece.Piece{}
+	rows := strings.Split(str, "/")
+	if len(rows) != 8 {
+		return board, errors.New("Couldn't find 8 rows in board")
+	}
+
+	for r := 0; r < 8; r++ {
+		row := rows[7-r]
+		col := 0
+		for pos := 0; pos < len(row); pos++ {
+			c := row[pos]
+			square := (r << 3) | col
+			if c == '/' {
+				break
+			} else if c >= '1' && c <= '8' {
+				col += int(c - '0')
+			} else {
+				piece, err := piece.Parse(c)
+				if err != nil {
+					return board, err
+				}
+				board[square] = piece
+				col++
+			}
+		}
+	}
+
+	return board, nil
 }
 
 func parseHalfMoveClock(str string) (int, error) {

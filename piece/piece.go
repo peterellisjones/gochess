@@ -1,6 +1,8 @@
 package piece
 
 import (
+	"errors"
+	"fmt"
 	"github.com/peterellisjones/gochess/side"
 )
 
@@ -19,17 +21,19 @@ var pieceChars map[Piece]byte = map[Piece]byte{
 	BLACK_KING:   'k',
 }
 
-var charPieces map[string]Piece = map[string]Piece{
-	"N": WHITE_KNIGHT,
-	"n": BLACK_KNIGHT,
-	"B": WHITE_BISHOP,
-	"b": BLACK_BISHOP,
-	"R": WHITE_ROOK,
-	"r": BLACK_ROOK,
-	"Q": WHITE_QUEEN,
-	"q": BLACK_QUEEN,
-	"K": WHITE_KING,
-	"k": BLACK_KING,
+var charPieces = map[byte]Piece{
+	'P': WHITE_PAWN,
+	'p': BLACK_PAWN,
+	'N': WHITE_KNIGHT,
+	'n': BLACK_KNIGHT,
+	'B': WHITE_BISHOP,
+	'b': BLACK_BISHOP,
+	'R': WHITE_ROOK,
+	'r': BLACK_ROOK,
+	'Q': WHITE_QUEEN,
+	'q': BLACK_QUEEN,
+	'K': WHITE_KING,
+	'k': BLACK_KING,
 }
 
 var pieceNames map[Piece]string = map[Piece]string{
@@ -57,6 +61,10 @@ func (piece Piece) Char() byte {
 	return pieceChars[piece]
 }
 
-// func (piece Piece) Parse(str) {
-// 	return charPieces[char]
-// }
+func Parse(chr byte) (Piece, error) {
+	piece, ok := charPieces[chr]
+	if !ok {
+		return ERROR, errors.New(fmt.Sprintf("Piece not recognized: '%s'", string(chr)))
+	}
+	return piece, nil
+}
