@@ -1,95 +1,102 @@
 package bitboard
 
+// Bitboard represents a board using 64 bits
 type Bitboard uint64
 
-const FULL Bitboard = 0xFFFFFFFFFFFFFFFF
-const EMPTY Bitboard = 0
+// represents a full board
+const Full Bitboard = 0xFFFFFFFFFFFFFFFF
 
+// represents an empty board
+const Empty Bitboard = 0
+
+// represents boards with row X occupied
 const (
-  ROW_1 Bitboard = Bitboard(0xFF) << (iota*8)
-  ROW_2
-  ROW_3
-  ROW_4
-  ROW_5
-  ROW_6
-  ROW_7
-  ROW_8
+	Row1 Bitboard = Bitboard(0xFF) << (iota * 8)
+	Row2
+	Row3
+	Row4
+	Row5
+	Row6
+	Row7
+	Row8
 )
 
+// represents boards with col X occupied
 const (
-  FILE_A Bitboard = Bitboard(0x0101010101010101) << iota
-  FILE_B
-  FILE_C
-  FILE_D
-  FILE_E
-  FILE_F
-  FILE_G
-  FILE_H
+	FileA Bitboard = Bitboard(0x0101010101010101) << iota
+	FileB
+	FileC
+	FileD
+	FileE
+	FileF
+	FileG
+	FileH
 )
 
+// represents boards with square X occupied
 const (
-  SQUARE_A1 Bitboard = Bitboard(1) << iota
-  SQUARE_B1
-  SQUARE_C1
-  SQUARE_D1
-  SQUARE_E1
-  SQUARE_F1
-  SQUARE_G1
-  SQUARE_H1
-  SQUARE_A2
-  SQUARE_B2
-  SQUARE_C2
-  SQUARE_D2
-  SQUARE_E2
-  SQUARE_F2
-  SQUARE_G2
-  SQUARE_H2
-  SQUARE_A3
-  SQUARE_B3
-  SQUARE_C3
-  SQUARE_D3
-  SQUARE_E3
-  SQUARE_F3
-  SQUARE_G3
-  SQUARE_H3
-  SQUARE_A4
-  SQUARE_B4
-  SQUARE_C4
-  SQUARE_D4
-  SQUARE_E4
-  SQUARE_F4
-  SQUARE_G4
-  SQUARE_H4
-  SQUARE_A5
-  SQUARE_B5
-  SQUARE_C5
-  SQUARE_D5
-  SQUARE_E5
-  SQUARE_F5
-  SQUARE_G5
-  SQUARE_H5
-  SQUARE_A6
-  SQUARE_B6
-  SQUARE_C6
-  SQUARE_D6
-  SQUARE_E6
-  SQUARE_F6
-  SQUARE_G6
-  SQUARE_H6
-  SQUARE_A7
-  SQUARE_B7
-  SQUARE_C7
-  SQUARE_D7
-  SQUARE_E7
-  SQUARE_F7
-  SQUARE_G7
-  SQUARE_H7
-  SQUARE_A8
-  SQUARE_B8
-  SQUARE_C8
-  SQUARE_D8
-  SQUARE_E8
-  SQUARE_F8
-  SQUARE_G8
-  SQUARE_H8
+	SquareA1 Bitboard = Bitboard(1) << iota
+	SquareB1
+	SquareC1
+	SquareD1
+	SquareE1
+	SquareF1
+	SquareG1
+	SquareH1
+	SquareA2
+	SquareB2
+	SquareC2
+	SquareD2
+	SquareE2
+	SquareF2
+	SquareG2
+	SquareH2
+	SquareA3
+	SquareB3
+	SquareC3
+	SquareD3
+	SquareE3
+	SquareF3
+	SquareG3
+	SquareH3
+	SquareA4
+	SquareB4
+	SquareC4
+	SquareD4
+	SquareE4
+	SquareF4
+	SquareG4
+	SquareH4
+	SquareA5
+	SquareB5
+	SquareC5
+	SquareD5
+	SquareE5
+	SquareF5
+	SquareG5
+	SquareH5
+	SquareA6
+	SquareB6
+	SquareC6
+	SquareD6
+	SquareE6
+	SquareF6
+	SquareG6
+	SquareH6
+	SquareA7
+	SquareB7
+	SquareC7
+	SquareD7
+	SquareE7
+	SquareF7
+	SquareG7
+	SquareH7
+	SquareA8
+	SquareB8
+	SquareC8
+	SquareD8
+	SquareE8
+	SquareF8
+	SquareG8
+	SquareH8
 )

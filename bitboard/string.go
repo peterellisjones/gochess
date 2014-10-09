@@ -1,35 +1,43 @@
 package bitboard
 
-func framedBoard(squareToChar func(square Square) byte) string {
-  var buffer bytes.Buffer
+import (
+	"bytes"
+	"github.com/peterellisjones/gochess/square"
+)
 
-  buffer.WriteString("  ABCDEFGH\n")
+func framedBoard(squareToChar func(square.Square) byte) string {
+	var buffer bytes.Buffer
 
-  for sq := Square(0); sq < Square(64); sq++ {
-    if square.Col() == 'A' {
-      buffer.WriteByte(Square.Row())
-      buffer.WriteByte('|')
-    }
+	buffer.WriteString("  ABCDEFGH\n")
 
-    buffer.WriteByte(squareToChar(sq))
+	for row := 7; row >= 0; row-- {
+		for col := 0; col < 8; col++ {
+			sq := square.Square((row << 3) | col)
+			if sq.Col() == 'A' {
+				buffer.WriteByte(sq.Row())
+				buffer.WriteByte('|')
+			}
 
-    if square.Col() == 'H' {
-      buffer.WriteByte('|')
-      buffer.WriteByte(Square.Row())
-    }
-  }
+			buffer.WriteByte(squareToChar(sq))
 
-  buffer.WriteString("  ABCDEFGH\n")
+			if sq.Col() == 'H' {
+				buffer.WriteByte('|')
+				buffer.WriteByte(sq.Row())
+				buffer.WriteByte('\n')
+			}
+		}
+	}
 
-  return buffer.String()
+	buffer.WriteString("  ABCDEFGH\n")
+
+	return buffer.String()
 }
 
-func (bitboard Bitboard) String() {
-  return frameBoard(func(square Square) byte {
-    if bitboard.IsSet(square) {
-      return 'X'
-    } else {
-      return '.'
-    }
-  })
+func (bitboard Bitboard) String() string {
+	return framedBoard(func(square square.Square) byte {
+		if bitboard.IsSet(square) {
+			return 'X'
+		}
+		return '.'
+	})
 }
