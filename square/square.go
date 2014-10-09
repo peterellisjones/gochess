@@ -1,5 +1,9 @@
 package square
 
+import (
+	"errors"
+)
+
 // Square represents a square on a chess board
 type Square uint8
 
@@ -30,4 +34,30 @@ var squareNames = [65]string{
 
 func (square Square) String() string {
 	return squareNames[square]
+}
+
+func Parse(str string) (Square, error) {
+	if len(str) != 2 {
+		return NULL, errors.New("Square must be of format '<col><row>' eg 'A4'")
+	}
+
+	colStr := str[0]
+	rowStr := str[1]
+	square := Square(0)
+
+	if colStr >= 'A' && colStr <= 'H' {
+		square = Square(colStr - 'A')
+	} else if colStr >= 'a' && colStr <= 'h' {
+		square = Square(colStr - 'a')
+	} else {
+		return NULL, errors.New("Column must be in range A..H or a..h")
+	}
+
+	if rowStr >= '1' && rowStr <= '8' {
+		square |= Square((rowStr - '1') << 3)
+	} else {
+		return NULL, errors.New("Row must be in range 1..8")
+	}
+
+	return square, nil
 }

@@ -1,5 +1,9 @@
 package piece
 
+import (
+	"github.com/peterellisjones/gochess/side"
+)
+
 var pieceChars map[Piece]byte = map[Piece]byte{
 	EMPTY:        '.',
 	ERROR:        'e',
@@ -37,8 +41,8 @@ var pieceNames map[Piece]string = map[Piece]string{
 	KING:   "king",
 }
 
-func (piece Piece) Side() Side {
-	return Side(piece & 1)
+func (piece Piece) Side() side.Side {
+	return side.Side(piece & 1)
 }
 
 func (piece Piece) Type() Piece {
@@ -53,6 +57,6 @@ func (piece Piece) Char() byte {
 	return pieceChars[piece]
 }
 
-func (char byte) Parse() Piece {
-	return charPieces[char]
-}
+// func (piece Piece) Parse(str) {
+// 	return charPieces[char]
+// }
