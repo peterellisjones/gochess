@@ -43,6 +43,11 @@ func (square Square) String() string {
 
 // Parse returns a square given a string representation (upper or lower case)
 func Parse(str string) (Square, error) {
+
+	if str == "-" {
+		return Null, nil
+	}
+
 	if len(str) != 2 {
 		return Null, errors.New("Square must be of format '<col><row>' eg 'A4'")
 	}

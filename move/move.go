@@ -3,7 +3,6 @@ package move
 import (
 	pc "github.com/peterellisjones/gochess/piece"
 	sq "github.com/peterellisjones/gochess/square"
-	"strings"
 )
 
 // Move represents a packed chess move
@@ -111,20 +110,6 @@ func EncodePromotion(from sq.Square, to sq.Square, piece pc.Piece) Move {
 func EncodeCapturePromotion(from sq.Square, to sq.Square, piece pc.Piece) Move {
 	flags := captureFlag | promoFlag | ((Move(piece) - Move(4)) << Move(13))
 	return Move(flags | (Move(from) | (Move(to) << Move(6))))
-}
-
-func (move Move) String() string {
-	strs := []string{move.From().String(), move.To().String()}
-	if move.IsCastle() {
-		if move == QueenSideCastle {
-			return "O-O-O"
-		} else if move == KingSideCastle {
-			return "O-O"
-		}
-	} else if move.IsCapture() {
-		return strings.Join(strs, "x")
-	}
-	return strings.Join(strs, "")
 }
 
 // Flip inverses the move

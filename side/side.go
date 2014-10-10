@@ -18,6 +18,11 @@ var sideChars = map[byte]Side{
 	'b': Black,
 }
 
+// Other returns the opposite side
+func (side Side) Other() Side {
+	return side ^ 1
+}
+
 func (side Side) String() string {
 	return []string{"white", "black"}[side]
 }

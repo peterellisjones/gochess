@@ -56,6 +56,11 @@ func (piece Piece) Type() Piece {
 	return piece & 0xFE
 }
 
+// ForSide returns a piece for a given side
+func ForSide(piece Piece, side side.Side) Piece {
+	return piece | Piece(side)
+}
+
 func (piece Piece) String() string {
 	return piece.Side().String() + " " + pieceNames[piece.Type()]
 }

@@ -2,6 +2,7 @@ package board
 
 import (
 	"github.com/peterellisjones/gochess/fen"
+	"github.com/peterellisjones/gochess/piece"
 	"github.com/peterellisjones/gochess/square"
 )
 
@@ -20,8 +21,10 @@ func FromFen(str string) (*Board, error) {
 
 	board.fullMoveNumber = parts.FullMoveNumber
 
-	for i, piece := range parts.Board {
-		board.Add(piece, square.Square(i))
+	for i, pc := range parts.Board {
+		if pc != piece.Empty {
+			board.Add(pc, square.Square(i))
+		}
 	}
 
 	return board, nil

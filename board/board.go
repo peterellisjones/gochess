@@ -1,6 +1,8 @@
 package board
 
 import (
+	"errors"
+	"fmt"
 	"github.com/peterellisjones/gochess/bitboard"
 	"github.com/peterellisjones/gochess/castling"
 	"github.com/peterellisjones/gochess/piece"
@@ -27,9 +29,10 @@ type Board struct {
 
 // Add adds a piece to the board on a given square
 func (board *Board) Add(pc piece.Piece, sq square.Square) {
+	side := pc.Side()
 	board.board[sq] = pc
 	board.bitboards[pc] = board.bitboards[pc].Set(sq)
-	board.bitboards[pc.Side()] = board.bitboards[pc.Side()].Set(sq)
+	board.bitboards[side] = board.bitboards[side].Set(sq)
 }
 
 // At returns the piece on a given square (if any)
@@ -40,6 +43,11 @@ func (board *Board) At(sq square.Square) piece.Piece {
 // BBPiece returns the occupation bitboard for a given piece
 func (board *Board) BBPiece(i piece.Piece) bitboard.Bitboard {
 	return board.bitboards[i]
+}
+
+// BBEmpty returns the bitboard of non occupied squares
+func (board *Board) BBEmpty() bitboard.Bitboard {
+	return ^(board.bitboards[0] | board.bitboards[1])
 }
 
 // BBSide returns the occupation bitboard for a given side
@@ -95,5 +103,50 @@ func EmptyBoard() *Board {
 		},
 	}
 
+	for i := 0; i < 14; i++ {
+		board.bitboards[i] = bitboard.Empty
+	}
+
+	for i := 0; i < 64; i++ {
+		board.board[i] = piece.Empty
+	}
+
 	return &board
+}
+
+// Validate returns an error if the board is not valid
+func (board *Board) Validate() error {
+	for sq := square.Square(0); sq < square.Square(64); sq++ {
+		pc := board.board[sq]
+
+		if pc == piece.Empty {
+			for i := 0; i < len(board.bitboards); i++ {
+				if board.bitboards[i].IsSet(sq) {
+					fmt.Println(sq)
+					fmt.Println(pc)
+					return errors.New("Expected bitboard not to be set (should be empty)")
+				}
+			}
+		} else {
+			side := pc.Side()
+			if board.BBSide(side.Other()).IsSet(sq) {
+				return errors.New("Bitboard was set for opposing side")
+			}
+
+			if !board.BBSide(side).IsSet(sq) {
+				return errors.New("Bitboard was not set for side")
+			}
+
+			if !board.BBPiece(pc).IsSet(sq) {
+				return errors.New("Bitboard was not set for piece")
+			}
+
+			for i := 2; i < len(board.bitboards); i++ {
+				if i != int(pc) && board.bitboards[i].IsSet(sq) {
+					return errors.New("Expected bitboard not to be set")
+				}
+			}
+		}
+	}
+	return nil
 }
