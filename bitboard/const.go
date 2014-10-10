@@ -6,7 +6,7 @@ type Bitboard uint64
 // represents a full board
 const Full Bitboard = 0xFFFFFFFFFFFFFFFF
 
-// represents an empty board
+// represents an Empty board
 const Empty Bitboard = 0
 
 // represents boards with row X occupied

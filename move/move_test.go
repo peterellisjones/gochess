@@ -45,7 +45,7 @@ var _ = Describe("Move", func() {
 		Expect(move.IsPromotion()).To(Equal(false))
 	})
 
-	It("correctly encodes double pawn pushes", func() {
+	It("correctly encodes double Pawn pushes", func() {
 		move := EncodeDoublePawnPush(square.A2, square.A4)
 		Expect(move.From()).To(Equal(square.A2))
 		Expect(move.To()).To(Equal(square.A4))
@@ -57,8 +57,8 @@ var _ = Describe("Move", func() {
 		Expect(move.IsPromotion()).To(Equal(false))
 	})
 
-	It("correctly encodes king side castles", func() {
-		move := KSIDE_CASTLE
+	It("correctly encodes King side castles", func() {
+		move := KingSideCastle
 		Expect(move.IsQuiet()).To(Equal(false))
 		Expect(move.IsCapture()).To(Equal(false))
 		Expect(move.IsEpCapture()).To(Equal(false))
@@ -67,8 +67,8 @@ var _ = Describe("Move", func() {
 		Expect(move.IsPromotion()).To(Equal(false))
 	})
 
-	It("correctly encodes queen side castles", func() {
-		move := QSIDE_CASTLE
+	It("correctly encodes Queen side castles", func() {
+		move := QueenSideCastle
 		Expect(move.IsQuiet()).To(Equal(false))
 		Expect(move.IsCapture()).To(Equal(false))
 		Expect(move.IsEpCapture()).To(Equal(false))
@@ -78,7 +78,7 @@ var _ = Describe("Move", func() {
 	})
 
 	It("correctly encodes promotions", func() {
-		pieces := []piece.Piece{piece.KNIGHT, piece.BISHOP, piece.ROOK, piece.QUEEN}
+		pieces := []piece.Piece{piece.Knight, piece.Bishop, piece.Rook, piece.Queen}
 		for _, piece := range pieces {
 			move := EncodePromotion(square.H6, square.H8, piece)
 			Expect(move.IsQuiet()).To(Equal(false))
@@ -92,7 +92,7 @@ var _ = Describe("Move", func() {
 	})
 
 	It("correctly encodes capture-promotions", func() {
-		pieces := []piece.Piece{piece.KNIGHT, piece.BISHOP, piece.ROOK, piece.QUEEN}
+		pieces := []piece.Piece{piece.Knight, piece.Bishop, piece.Rook, piece.Queen}
 		for _, piece := range pieces {
 			move := EncodeCapturePromotion(square.H6, square.H8, piece)
 			Expect(move.IsQuiet()).To(Equal(false))

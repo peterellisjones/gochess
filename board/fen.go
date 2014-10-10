@@ -5,8 +5,9 @@ import (
 	"github.com/peterellisjones/gochess/square"
 )
 
+// FromFen returns a board given a FEN string
 func FromFen(str string) (*Board, error) {
-	parts, err := fen.FenParts(str)
+	parts, err := fen.GetParts(str)
 	if err != nil {
 		return nil, err
 	}

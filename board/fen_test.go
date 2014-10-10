@@ -22,9 +22,9 @@ var _ = Describe("FromFen", func() {
 		})
 
 		It("has the correct pieces", func() {
-			Expect(board.At(square.A1)).To(Equal(piece.WHITE_ROOK))
-			Expect(board.At(square.C5)).To(Equal(piece.BLACK_PAWN))
-			Expect(board.At(square.A7)).To(Equal(piece.EMPTY))
+			Expect(board.At(square.A1)).To(Equal(piece.WhiteRook))
+			Expect(board.At(square.C5)).To(Equal(piece.BlackPawn))
+			Expect(board.At(square.A7)).To(Equal(piece.Empty))
 
 			expectedBoard := "" +
 				"rnbqk..r" + "\n" +
@@ -49,11 +49,11 @@ var _ = Describe("FromFen", func() {
 				"X......." + "\n" +
 				"......XX" + "\n" +
 				"........" + "\n"
-			Expect(board.BBPiece(piece.WHITE_PAWN).String()).To(Equal(expectedBitboard))
+			Expect(board.BBPiece(piece.WhitePawn).String()).To(Equal(expectedBitboard))
 		})
 
 		It("has the correct side to move", func() {
-			Expect(board.SideToMove()).To(Equal(side.BLACK))
+			Expect(board.SideToMove()).To(Equal(side.Black))
 		})
 
 		It("has the correct half move clock", func() {
@@ -69,7 +69,7 @@ var _ = Describe("FromFen", func() {
 		})
 
 		It("has the correct castling rights", func() {
-			expectedRights := castling.BLACK_KSIDE | castling.WHITE_QSIDE
+			expectedRights := castling.BlackKSide | castling.WhiteQSide
 			Expect(board.CastlingRights()).To(Equal(expectedRights))
 		})
 	})

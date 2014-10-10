@@ -32,6 +32,7 @@ var squareNames = [65]string{
 	"NULL",
 }
 
+// Flip inverts the square
 func (square Square) Flip() Square {
 	return (Square(56) - (square & Square(56))) | (square & Square(7))
 }
@@ -40,9 +41,10 @@ func (square Square) String() string {
 	return squareNames[square]
 }
 
+// Parse returns a square given a string representation (upper or lower case)
 func Parse(str string) (Square, error) {
 	if len(str) != 2 {
-		return NULL, errors.New("Square must be of format '<col><row>' eg 'A4'")
+		return Null, errors.New("Square must be of format '<col><row>' eg 'A4'")
 	}
 
 	colStr := str[0]
@@ -54,13 +56,13 @@ func Parse(str string) (Square, error) {
 	} else if colStr >= 'a' && colStr <= 'h' {
 		square = Square(colStr - 'a')
 	} else {
-		return NULL, errors.New("Column must be in range A..H or a..h")
+		return Null, errors.New("Column must be in range A..H or a..h")
 	}
 
 	if rowStr >= '1' && rowStr <= '8' {
 		square |= Square((rowStr - '1') << 3)
 	} else {
-		return NULL, errors.New("Row must be in range 1..8")
+		return Null, errors.New("Row must be in range 1..8")
 	}
 
 	return square, nil

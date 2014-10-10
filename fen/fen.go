@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// Parts represent the individual parts of a FEN string
 type Parts struct {
 	Board          [64]piece.Piece
 	SideToMove     side.Side
@@ -19,11 +20,12 @@ type Parts struct {
 	FullMoveNumber int
 }
 
-func FenParts(fen string) (Parts, error) {
+// GetParts returns the parts of a FEN string
+func GetParts(fen string) (Parts, error) {
 	parts := Parts{
-		SideToMove:     side.WHITE,
-		CastlingRights: castling.NO_RIGHTS,
-		EpSquare:       square.NULL,
+		SideToMove:     side.White,
+		CastlingRights: castling.NoRights,
+		EpSquare:       square.Null,
 		HalfMoveClock:  0,
 		FullMoveNumber: 1,
 	}
@@ -125,7 +127,7 @@ func parseEpSquare(str string) (square.Square, error) {
 }
 
 func parseSideToMove(str string) (side.Side, error) {
-	return side.Parse(str)
+	return side.Parse(str[0])
 }
 
 func parseCastlingRights(str string) (castling.CastlingRight, error) {

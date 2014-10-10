@@ -4,30 +4,34 @@ import (
 	"errors"
 )
 
+// Side represents the side to play
 type Side uint8
 
+// The possible sides
 const (
-	WHITE Side = Side(0)
-	BLACK Side = Side(1)
+	White Side = Side(0)
+	Black Side = Side(1)
 )
 
-var sideChars = map[string]Side{
-	"w": WHITE,
-	"b": BLACK,
+var sideChars = map[byte]Side{
+	'w': White,
+	'b': Black,
 }
 
 func (side Side) String() string {
 	return []string{"white", "black"}[side]
 }
 
+// Char returns the char representation of a side
 func (side Side) Char() string {
 	return []string{"w", "b"}[side]
 }
 
-func Parse(str string) (Side, error) {
+// Parse returns the side given a char
+func Parse(str byte) (Side, error) {
 	side, ok := sideChars[str]
 	if !ok {
-		return WHITE, errors.New("Side not recognized")
+		return White, errors.New("Side not recognized")
 	}
 	return side, nil
 }

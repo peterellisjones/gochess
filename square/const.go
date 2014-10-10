@@ -66,5 +66,5 @@ const (
 	F8
 	G8
 	H8
-	NULL
+	Null
 )

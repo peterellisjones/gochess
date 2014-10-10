@@ -5,6 +5,7 @@ import (
 	"github.com/peterellisjones/gochess/square"
 )
 
+// Board returns the object represented as a 8x8 board
 func Board(squareToChar func(square.Square) byte) string {
 	var buffer bytes.Buffer
 	for row := 7; row >= 0; row-- {
@@ -20,6 +21,7 @@ func Board(squareToChar func(square.Square) byte) string {
 	return buffer.String()
 }
 
+// FramedBoard returns the object with a row and column borders
 func FramedBoard(squareToChar func(square.Square) byte) string {
 	var buffer bytes.Buffer
 
