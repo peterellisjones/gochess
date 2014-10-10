@@ -32,6 +32,10 @@ var squareNames = [65]string{
 	"NULL",
 }
 
+func (square Square) Flip() Square {
+	return (Square(56) - (square & Square(56))) | (square & Square(7))
+}
+
 func (square Square) String() string {
 	return squareNames[square]
 }

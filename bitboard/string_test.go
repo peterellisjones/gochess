@@ -11,16 +11,14 @@ var _ = Describe("Bitboard", func() {
 	Describe("String", func() {
 		It("returns a nice representation of the bitboard", func() {
 			expectedOutput := "" +
-				"  ABCDEFGH" + "\n" +
-				"1|XXXXXXXX|1" + "\n" +
-				"1|.X......|1" + "\n" +
-				"1|.X......|1" + "\n" +
-				"1|.X......|1" + "\n" +
-				"1|.X......|1" + "\n" +
-				"1|.X......|1" + "\n" +
-				"1|.X......|1" + "\n" +
-				"1|XXXXXXXX|1" + "\n" +
-				"  ABCDEFGH" + "\n"
+				"XXXXXXXX\n" +
+				".X......\n" +
+				".X......\n" +
+				".X......\n" +
+				".X......\n" +
+				".X......\n" +
+				".X......\n" +
+				"XXXXXXXX\n"
 			bb := Row1 | Row8 | FileB
 			Expect(bb.String()).To(Equal(expectedOutput))
 		})

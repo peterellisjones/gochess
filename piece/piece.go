@@ -9,6 +9,8 @@ import (
 var pieceChars map[Piece]byte = map[Piece]byte{
 	EMPTY:        '.',
 	ERROR:        'e',
+	WHITE_PAWN:   'P',
+	BLACK_PAWN:   'p',
 	WHITE_KNIGHT: 'N',
 	BLACK_KNIGHT: 'n',
 	WHITE_BISHOP: 'B',

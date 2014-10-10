@@ -25,10 +25,31 @@ var _ = Describe("FromFen", func() {
 			Expect(board.At(square.A1)).To(Equal(piece.WHITE_ROOK))
 			Expect(board.At(square.C5)).To(Equal(piece.BLACK_PAWN))
 			Expect(board.At(square.A7)).To(Equal(piece.EMPTY))
+
+			expectedBoard := "" +
+				"rnbqk..r" + "\n" +
+				".p...ppp" + "\n" +
+				"p......." + "\n" +
+				".NpPp..." + "\n" +
+				"QPP.P.n." + "\n" +
+				"P....N.." + "\n" +
+				"....KbPP" + "\n" +
+				"R.B..B.R" + "\n"
+			Expect(board.String()).To(Equal(expectedBoard))
+
 		})
 
 		It("has the correct bitboards", func() {
-			Expect(board.BBPiece(piece.WHITE_PAWN)).To(Equal(0xF))
+			expectedBitboard := "" +
+				"........" + "\n" +
+				"........" + "\n" +
+				"........" + "\n" +
+				"...X...." + "\n" +
+				".XX.X..." + "\n" +
+				"X......." + "\n" +
+				"......XX" + "\n" +
+				"........" + "\n"
+			Expect(board.BBPiece(piece.WHITE_PAWN).String()).To(Equal(expectedBitboard))
 		})
 
 		It("has the correct side to move", func() {
