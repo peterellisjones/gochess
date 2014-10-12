@@ -36,7 +36,6 @@ var _ = Describe("FromFen", func() {
 				"....KbPP" + "\n" +
 				"R.B..B.R" + "\n"
 			Expect(board.String()).To(Equal(expectedBoard))
-
 		})
 
 		It("has the correct bitboards", func() {

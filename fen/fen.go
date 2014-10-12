@@ -2,19 +2,20 @@ package fen
 
 import (
 	"errors"
+	"strconv"
+	"strings"
+
 	"github.com/peterellisjones/gochess/castling"
 	"github.com/peterellisjones/gochess/piece"
 	"github.com/peterellisjones/gochess/side"
 	"github.com/peterellisjones/gochess/square"
-	"strconv"
-	"strings"
 )
 
 // Parts represent the individual parts of a FEN string
 type Parts struct {
 	Board          [64]piece.Piece
 	SideToMove     side.Side
-	CastlingRights castling.CastlingRight
+	CastlingRights castling.Right
 	EpSquare       square.Square
 	HalfMoveClock  int
 	FullMoveNumber int
@@ -49,7 +50,7 @@ func GetParts(fen string) (Parts, error) {
 	}
 
 	if len(arr) > 2 {
-		rights, err := parseCastlingRights(arr[2])
+		rights, err := parseRights(arr[2])
 		if err != nil {
 			return parts, err
 		}
@@ -115,21 +116,36 @@ func parseBoard(str string) ([64]piece.Piece, error) {
 }
 
 func parseHalfMoveClock(str string) (int, error) {
+	if str == "-" {
+		return 0, nil
+	}
 	return strconv.Atoi(str)
 }
 
 func parseFullMoveNumber(str string) (int, error) {
+	if str == "-" {
+		return 1, nil
+	}
 	return strconv.Atoi(str)
 }
 
 func parseEpSquare(str string) (square.Square, error) {
+	if str == "-" {
+		return square.Null, nil
+	}
 	return square.Parse(str)
 }
 
 func parseSideToMove(str string) (side.Side, error) {
+	if str == "-" {
+		return side.White, nil
+	}
 	return side.Parse(str[0])
 }
 
-func parseCastlingRights(str string) (castling.CastlingRight, error) {
+func parseRights(str string) (castling.Right, error) {
+	if str == "-" {
+		return castling.NoRights, nil
+	}
 	return castling.Parse(str)
 }

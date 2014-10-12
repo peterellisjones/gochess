@@ -2,49 +2,50 @@ package castling
 
 import (
 	"errors"
+
 	"github.com/peterellisjones/gochess/side"
 )
 
-// CastlingRight represents a bitmask of possible castling rights
-type CastlingRight uint8
+// Right represents a bitmask of possible castling rights
+type Right uint8
 
 // Possible castling rights
 const (
-	NoRights   CastlingRight = CastlingRight(0)
-	BlackQSide CastlingRight = CastlingRight(1)
-	BlackKSide CastlingRight = CastlingRight(2)
-	blackXSide CastlingRight = CastlingRight(1 + 2)
-	WhiteQSide CastlingRight = CastlingRight(4)
-	WhiteKSide CastlingRight = CastlingRight(8)
-	whiteXSide CastlingRight = CastlingRight(4 + 8)
+	NoRights   Right = Right(0)
+	BlackQSide Right = Right(1)
+	BlackKSide Right = Right(2)
+	blackXSide Right = Right(1 + 2)
+	WhiteQSide Right = Right(4)
+	WhiteKSide Right = Right(8)
+	whiteXSide Right = Right(4 + 8)
 )
 
 // BlackCanCastle returns true if black can castle
-func (right CastlingRight) BlackCanCastle() bool {
+func (right Right) BlackCanCastle() bool {
 	return right&blackXSide != NoRights
 }
 
 // WhiteCanCastle returns true if white can castle
-func (right CastlingRight) WhiteCanCastle() bool {
+func (right Right) WhiteCanCastle() bool {
 	return right&whiteXSide != NoRights
 }
 
 // RightsForSide returns the set of rights for a specific side
-func (right CastlingRight) RightsForSide(side side.Side) CastlingRight {
-	sideMask := []CastlingRight{whiteXSide, blackXSide}[side]
+func (right Right) RightsForSide(side side.Side) Right {
+	sideMask := []Right{whiteXSide, blackXSide}[side]
 	return sideMask & right
 }
 
 // HasRight returns true if a given right exists in the set of rights
-func (rightA CastlingRight) HasRight(rightB CastlingRight) bool {
-	return rightA&rightB != NoRights
+func (right Right) HasRight(rightB Right) bool {
+	return right&rightB != NoRights
 }
 
 // Rights returns an array of individual rights
-func (right CastlingRight) Rights() []CastlingRight {
-	rights := []CastlingRight{}
-	for i := CastlingRight(0); i < 4; i++ {
-		r := CastlingRight(1) << i
+func (right Right) Rights() []Right {
+	rights := []Right{}
+	for i := Right(0); i < 4; i++ {
+		r := Right(1) << i
 		if right&r != NoRights {
 			rights = append(rights, r)
 		}
@@ -52,14 +53,14 @@ func (right CastlingRight) Rights() []CastlingRight {
 	return rights
 }
 
-var rightNames = map[CastlingRight]string{
+var rightNames = map[Right]string{
 	BlackQSide: "q",
 	BlackKSide: "k",
 	WhiteQSide: "Q",
 	WhiteKSide: "K",
 }
 
-func (right CastlingRight) String() string {
+func (right Right) String() string {
 	ret := ""
 	for _, r := range right.Rights() {
 		ret = ret + rightNames[r]
@@ -67,11 +68,21 @@ func (right CastlingRight) String() string {
 	return ret
 }
 
+// ForEach executes a function for each right in the set of rights
+func (right Right) ForEach(fn func(uint)) {
+	for i := uint(0); i < 4; i++ {
+		r := right & (Right(1) << i)
+		if r != NoRights {
+			fn(i)
+		}
+	}
+}
+
 // Parse parses a string representation of a set of castling rights
-func Parse(str string) (CastlingRight, error) {
+func Parse(str string) (Right, error) {
 	rights := NoRights
 
-	charToRights := map[byte]CastlingRight{
+	charToRights := map[byte]Right{
 		'q': BlackQSide,
 		'k': BlackKSide,
 		'Q': WhiteQSide,

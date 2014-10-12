@@ -4,8 +4,8 @@ import (
 	"github.com/peterellisjones/gochess/bitboard"
 	"github.com/peterellisjones/gochess/board"
 	"github.com/peterellisjones/gochess/move"
-	"github.com/peterellisjones/gochess/movelist"
 	"github.com/peterellisjones/gochess/piece"
+	"github.com/peterellisjones/gochess/side"
 	"github.com/peterellisjones/gochess/square"
 )
 
@@ -28,31 +28,41 @@ var knightMoves = [64]bitboard.Bitboard{
 	0x0044280000000000, 0x0088500000000000, 0x0010A00000000000, 0x0020400000000000,
 }
 
-// GenerateKnightMoves generates knight moves
-func GenerateKnightMoves(board *board.Board, list *movelist.MoveList) {
-	pc := piece.ForSide(piece.Knight, board.SideToMove())
-	addLookupTableMoves(pc, &knightMoves, board, list)
+// AddKnightMoves generates knight moves
+func (gen *Generator) AddKnightMoves(sd side.Side) {
+	pc := piece.ForSide(piece.Knight, sd)
+	gen.addLookupTableMoves(pc, &knightMoves)
 }
 
-func addLookupTableMoves(piece piece.Piece, table *[64]bitboard.Bitboard, board *board.Board, list *movelist.MoveList) {
-	side := board.SideToMove()
-	enemy := board.BBSide(side.Other())
-	empty := board.BBEmpty()
+func (gen *Generator) addLookupTableMoves(piece piece.Piece, table *[64]bitboard.Bitboard) {
+	enemy := gen.board.BBSide(piece.Side().Other())
+	empty := gen.board.BBEmpty()
 
-	board.BBPiece(piece).ForEachSetBit(func(from square.Square) {
+	gen.board.BBPiece(piece).ForEachSetBit(func(from square.Square) {
 		targets := table[from]
 		captures := targets & enemy
 		moves := targets & empty
-		addMoves(moves, captures, from, list)
+		gen.addMoves(moves, captures, from)
 	})
 }
 
-func addMoves(moves bitboard.Bitboard, captures bitboard.Bitboard, from square.Square, list *movelist.MoveList) {
+func (gen *Generator) addMoves(moves bitboard.Bitboard, captures bitboard.Bitboard, from square.Square) {
 	captures.ForEachSetBit(func(to square.Square) {
-		list.Add(move.EncodeMove(from, to))
+		gen.list.Add(move.EncodeCapture(from, to))
 	})
 
 	moves.ForEachSetBit(func(to square.Square) {
-		list.Add(move.EncodeMove(from, to))
+		gen.list.Add(move.EncodeMove(from, to))
 	})
+}
+
+// GetKnightAttackedSquares returns the set of knight attacks
+func GetKnightAttackedSquares(bd *board.Board, attacker side.Side) bitboard.Bitboard {
+	piece := piece.ForSide(piece.Knight, attacker)
+	movers := bd.BBPiece(piece)
+	attackedSquares := bitboard.Empty
+	movers.ForEachSetBit(func(from square.Square) {
+		attackedSquares |= knightMoves[from]
+	})
+	return attackedSquares
 }

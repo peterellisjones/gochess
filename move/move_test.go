@@ -9,6 +9,7 @@ import (
 )
 
 var _ = Describe("Move", func() {
+
 	It("correctly encodes quiet moves", func() {
 		move := EncodeMove(square.A3, square.D6)
 		Expect(move.From()).To(Equal(square.A3))
@@ -103,5 +104,23 @@ var _ = Describe("Move", func() {
 			Expect(move.IsPromotion()).To(Equal(true))
 			Expect(move.PromoteTo()).To(Equal(piece))
 		}
+	})
+
+	It("orders moves correctly", func() {
+		quietMove := EncodeMove(square.A3, square.D6)
+		doublePawnPush := EncodeDoublePawnPush(square.A3, square.D6)
+		Expect(doublePawnPush > quietMove).To(BeTrue())
+
+		capture := EncodeCapture(square.A3, square.D6)
+		Expect(capture > doublePawnPush).To(BeTrue())
+
+		epCapture := EncodeEpCapture(square.A3, square.D6)
+		Expect(epCapture > capture).To(BeTrue())
+
+		promotion := EncodePromotion(square.A3, square.D6, piece.Rook)
+		Expect(promotion > capture).To(BeTrue())
+
+		capturePromotion := EncodeCapturePromotion(square.A3, square.D6, piece.Rook)
+		Expect(capturePromotion > promotion).To(BeTrue())
 	})
 })

@@ -16,6 +16,13 @@ func (bitboard Bitboard) IsSet(square sq.Square) bool {
 	return mask&bitboard != Empty
 }
 
+// CircularRightShift does a circular right shift (ie bits are not truncated)
+func (bitboard Bitboard) CircularRightShift(square sq.Square) Bitboard {
+	right := bitboard >> square
+	left := bitboard << (64 - square)
+	return right | left
+}
+
 // ForEach iterates over each square
 // call func with (square, isSet) where isSet is true
 // if square is occupied

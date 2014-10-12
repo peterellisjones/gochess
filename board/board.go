@@ -2,7 +2,7 @@ package board
 
 import (
 	"errors"
-	"fmt"
+
 	"github.com/peterellisjones/gochess/bitboard"
 	"github.com/peterellisjones/gochess/castling"
 	"github.com/peterellisjones/gochess/piece"
@@ -14,7 +14,7 @@ import (
 type IrreversibleData struct {
 	halfMoveClock  int
 	epSquare       square.Square
-	castlingRights castling.CastlingRight
+	CastlingRights castling.Right
 	captured       piece.Piece
 }
 
@@ -50,6 +50,11 @@ func (board *Board) BBEmpty() bitboard.Bitboard {
 	return ^(board.bitboards[0] | board.bitboards[1])
 }
 
+// BBOccupied returns the bitboard of occupied squares
+func (board *Board) BBOccupied() bitboard.Bitboard {
+	return board.bitboards[0] | board.bitboards[1]
+}
+
 // BBSide returns the occupation bitboard for a given side
 func (board *Board) BBSide(i side.Side) bitboard.Bitboard {
 	return board.bitboards[i]
@@ -65,9 +70,9 @@ func (board *Board) EpSquare() square.Square {
 	return board.irrev.epSquare
 }
 
-// CastlingRights returns a bitmask of possible castling rights for the current position
-func (board *Board) CastlingRights() castling.CastlingRight {
-	return board.irrev.castlingRights
+// Rights returns a bitmask of possible castling rights for the current position
+func (board *Board) CastlingRights() castling.Right {
+	return board.irrev.CastlingRights
 }
 
 // HalfMoveClock returns the half move clock
@@ -97,7 +102,7 @@ func EmptyBoard() *Board {
 		sideToMove:     side.White,
 		irrev: IrreversibleData{
 			epSquare:       square.Null,
-			castlingRights: castling.NoRights,
+			CastlingRights: castling.NoRights,
 			halfMoveClock:  0,
 			captured:       piece.Empty,
 		},
@@ -122,8 +127,6 @@ func (board *Board) Validate() error {
 		if pc == piece.Empty {
 			for i := 0; i < len(board.bitboards); i++ {
 				if board.bitboards[i].IsSet(sq) {
-					fmt.Println(sq)
-					fmt.Println(pc)
 					return errors.New("Expected bitboard not to be set (should be empty)")
 				}
 			}

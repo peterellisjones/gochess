@@ -2,6 +2,7 @@ package piece
 
 import (
 	"fmt"
+
 	"github.com/peterellisjones/gochess/side"
 )
 
@@ -58,7 +59,7 @@ func (piece Piece) Type() Piece {
 
 // ForSide returns a piece for a given side
 func ForSide(piece Piece, side side.Side) Piece {
-	return piece | Piece(side)
+	return piece.Type() | Piece(side)
 }
 
 func (piece Piece) String() string {

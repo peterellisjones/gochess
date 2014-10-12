@@ -15,7 +15,7 @@ func FromFen(str string) (*Board, error) {
 
 	board := EmptyBoard()
 	board.sideToMove = parts.SideToMove
-	board.irrev.castlingRights = parts.CastlingRights
+	board.irrev.CastlingRights = parts.CastlingRights
 	board.irrev.epSquare = parts.EpSquare
 	board.irrev.halfMoveClock = parts.HalfMoveClock
 

@@ -37,6 +37,11 @@ func (square Square) Flip() Square {
 	return (Square(56) - (square & Square(56))) | (square & Square(7))
 }
 
+// CircularTranslate transaltes the square mod 64
+func (square Square) CircularTranslate(diff Square) Square {
+	return (square + diff) & 63
+}
+
 func (square Square) String() string {
 	return squareNames[square]
 }

@@ -9,28 +9,36 @@ import (
 type Move uint16
 
 const (
-	promoFlag   Move = 1 << 12
-	captureFlag Move = 2 << 12
+	promoFlag   Move = 1 << 15
+	captureFlag Move = 1 << 14
 
-	epCaptureFlag      Move = captureFlag | (4 << 12)
-	doublePawnPushFlag Move = 8 << 12
+	epCaptureFlag      Move = captureFlag | (1 << 12)
+	doublePawnPushFlag Move = 1 << 13
 )
 
 // Premade moves
 const (
-	QueenSideCastle Move = Move(4 << 12)
-	KingSideCastle  Move = Move(12 << 12)
+	QueenSideCastle Move = Move(1 << 12)
+	KingSideCastle  Move = Move(3 << 12)
 )
 
 /*
   Moves are packed in order to use as little memory as possible
 
   pacKing
-  bits  0 -  6 : from square
-        7 - 12 : to square
-        12     : promotion flag
-        13     : capture flag
-        14     : castle flag
+  bits  0 -  5 : from square
+        6 - 11 : to square
+        12     : qs castle
+        13     : ks castle (with qs castle)
+
+        12     : ep capture flag (with capture flag too)
+        13     : double push flag
+        14     : capture flag
+        15     : promotion flag
+
+        for a promotion bits #12 and #13 store the
+        type of piece to promote to
+
 */
 
 // From returns the square to move from (if any)
@@ -47,12 +55,13 @@ func (move Move) To() sq.Square {
 
 // PromoteTo returns the piece to promote to (if any)
 func (move Move) PromoteTo() pc.Piece {
-	return pc.Piece(Move(14)&(move>>Move(13)) + Move(4))
+	const promoPieceMask = Move(3 << 12)
+	return pc.Piece(((move & promoPieceMask) >> 11) + Move(4))
 }
 
 // IsQuiet returns true if the move is a quiet move
 func (move Move) IsQuiet() bool {
-	return (move & (Move(15) << Move(12))) == Move(0)
+	return (move & (Move(15) << 12)) == Move(0)
 }
 
 // IsCapture returns true if the move is a capture
@@ -62,17 +71,20 @@ func (move Move) IsCapture() bool {
 
 // IsEpCapture returns true if the move is an en-passant capture
 func (move Move) IsEpCapture() bool {
-	return (move & (Move(15) << Move(12))) == epCaptureFlag
+	const mask = Move(15 << 12)
+	return (move & mask) == epCaptureFlag
 }
 
 // IsDoublePawnPush returns true if the move is a doulbe Pawn push
 func (move Move) IsDoublePawnPush() bool {
-	return (move & (Move(15) << Move(12))) == doublePawnPushFlag
+	const mask = Move(15 << 12)
+	return (move & mask) == doublePawnPushFlag
 }
 
 // IsCastle returns true if the move is a castle
 func (move Move) IsCastle() bool {
-	return (move & (Move(7) << Move(12))) == (Move(4) << Move(12))
+	const mask = Move(13 << 12)
+	return (move & mask) == QueenSideCastle
 }
 
 // IsPromotion returns true if the move is a promotion
@@ -82,34 +94,45 @@ func (move Move) IsPromotion() bool {
 
 // EncodeMove encodes a regular move
 func EncodeMove(from sq.Square, to sq.Square) Move {
-	return Move(Move(from) | (Move(to) << Move(6)))
+	return Move(Move(from) | (Move(to) << 6))
 }
 
 // EncodeCapture encodes a capture
 func EncodeCapture(from sq.Square, to sq.Square) Move {
-	return Move(captureFlag | (Move(from) | (Move(to) << Move(6))))
+	return Move(captureFlag | (Move(from) | (Move(to) << 6)))
 }
 
 // EncodeEpCapture encodes an EP capture
 func EncodeEpCapture(from sq.Square, to sq.Square) Move {
-	return Move(epCaptureFlag | (Move(from) | (Move(to) << Move(6))))
+	return Move(epCaptureFlag | (Move(from) | (Move(to) << 6)))
 }
 
 // EncodeDoublePawnPush encodes a double Pawn push
 func EncodeDoublePawnPush(from sq.Square, to sq.Square) Move {
-	return Move(doublePawnPushFlag | (Move(from) | (Move(to) << Move(6))))
+	return Move(doublePawnPushFlag | (Move(from) | (Move(to) << 6)))
 }
 
 // EncodePromotion encodes a promotion
 func EncodePromotion(from sq.Square, to sq.Square, piece pc.Piece) Move {
-	flags := promoFlag | ((Move(piece) - Move(4)) << Move(13))
-	return Move(flags | (Move(from) | (Move(to) << Move(6))))
+	flags := promoFlag | ((Move(piece.Type()) - Move(4)) << 11)
+	return Move(flags | (Move(from) | (Move(to) << 6)))
 }
 
 // EncodeCapturePromotion encodes a capturing promotion
 func EncodeCapturePromotion(from sq.Square, to sq.Square, piece pc.Piece) Move {
-	flags := captureFlag | promoFlag | ((Move(piece) - Move(4)) << Move(13))
-	return Move(flags | (Move(from) | (Move(to) << Move(6))))
+	flags := captureFlag | promoFlag | ((Move(piece.Type()) - Move(4)) << 11)
+	return Move(flags | (Move(from) | (Move(to) << 6)))
+}
+
+// Distance returns the absolute difference between the starting square
+//  and ending square
+func (move Move) Distance() sq.Square {
+	if move.IsCastle() {
+		return sq.Square(0)
+	} else if move.To() > move.From() {
+		return move.To() - move.From()
+	}
+	return move.From() - move.To()
 }
 
 // Flip inverses the move

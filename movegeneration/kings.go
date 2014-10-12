@@ -3,8 +3,9 @@ package movegeneration
 import (
 	"github.com/peterellisjones/gochess/bitboard"
 	"github.com/peterellisjones/gochess/board"
-	"github.com/peterellisjones/gochess/movelist"
 	"github.com/peterellisjones/gochess/piece"
+	"github.com/peterellisjones/gochess/side"
+	"github.com/peterellisjones/gochess/square"
 )
 
 var kingMoves = [64]bitboard.Bitboard{
@@ -26,8 +27,19 @@ var kingMoves = [64]bitboard.Bitboard{
 	0x2838000000000000, 0x5070000000000000, 0xA0E0000000000000, 0x40C0000000000000,
 }
 
-// GenerateKingMoves generates king moves
-func GenerateKingMoves(board *board.Board, list *movelist.MoveList) {
-	pc := piece.ForSide(piece.King, board.SideToMove())
-	addLookupTableMoves(pc, &kingMoves, board, list)
+// AddKingMoves generates king moves
+func (gen *Generator) AddKingMoves(side side.Side) {
+	pc := piece.ForSide(piece.King, side)
+	gen.addLookupTableMoves(pc, &kingMoves)
+}
+
+// GetKingAttackedSquares returns the set of king attacks
+func GetKingAttackedSquares(bd *board.Board, attacker side.Side) bitboard.Bitboard {
+	piece := piece.ForSide(piece.King, attacker)
+	movers := bd.BBPiece(piece)
+	attackedSquares := bitboard.Empty
+	movers.ForEachSetBit(func(from square.Square) {
+		attackedSquares |= kingMoves[from]
+	})
+	return attackedSquares
 }
