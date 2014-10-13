@@ -1,8 +1,6 @@
 package board
 
 import (
-	"errors"
-
 	"github.com/peterellisjones/gochess/bitboard"
 	"github.com/peterellisjones/gochess/castling"
 	"github.com/peterellisjones/gochess/piece"
@@ -10,21 +8,20 @@ import (
 	"github.com/peterellisjones/gochess/square"
 )
 
-// IrreversibleData represents the information in a board that cannot be undone
-type IrreversibleData struct {
-	halfMoveClock  int
-	epSquare       square.Square
+// Extra represents the information in a board that cannot be undone
+type Extra struct {
+	HalfMoveClock  int
+	EpSquare       square.Square
 	CastlingRights castling.Right
-	captured       piece.Piece
+	FullMoveNumber int
+	SideToMove     side.Side
 }
 
 // Board represents a chess board
 type Board struct {
-	board          [64]piece.Piece
-	bitboards      [14]bitboard.Bitboard
-	irrev          IrreversibleData
-	fullMoveNumber int
-	sideToMove     side.Side
+	board     [64]piece.Piece
+	bitboards [14]bitboard.Bitboard
+	extra     Extra
 }
 
 // Add adds a piece to the board on a given square
@@ -33,6 +30,30 @@ func (board *Board) Add(pc piece.Piece, sq square.Square) {
 	board.board[sq] = pc
 	board.bitboards[pc] = board.bitboards[pc].Set(sq)
 	board.bitboards[side] = board.bitboards[side].Set(sq)
+}
+
+// Move moves a piece
+func (board *Board) Move(from square.Square, to square.Square) {
+	pc := board.board[from]
+	board.board[from] = piece.Empty
+	board.board[to] = pc
+
+	mask := (bitboard.Bitboard(1) << from) | (bitboard.Bitboard(1) << to)
+	sd := pc.Side()
+	board.bitboards[sd] ^= mask
+	board.bitboards[pc] ^= mask
+}
+
+// Remove removes a piece from the board
+func (board *Board) Remove(sq square.Square) {
+	pc := board.board[sq]
+	side := pc.Side()
+
+	board.board[sq] = piece.Empty
+
+	mask := bitboard.Bitboard(1) << sq
+	board.bitboards[pc] ^= mask
+	board.bitboards[side] ^= mask
 }
 
 // At returns the piece on a given square (if any)
@@ -62,94 +83,55 @@ func (board *Board) BBSide(i side.Side) bitboard.Bitboard {
 
 // SideToMove returns the next side to move
 func (board *Board) SideToMove() side.Side {
-	return board.sideToMove
+	return board.extra.SideToMove
 }
 
 // EpSquare returns the en-passant square, if any
 func (board *Board) EpSquare() square.Square {
-	return board.irrev.epSquare
+	return board.extra.EpSquare
 }
 
-// Rights returns a bitmask of possible castling rights for the current position
+// CastlingRights returns a bitmask of possible castling rights for the current position
 func (board *Board) CastlingRights() castling.Right {
-	return board.irrev.CastlingRights
+	return board.extra.CastlingRights
 }
 
 // HalfMoveClock returns the half move clock
 func (board *Board) HalfMoveClock() int {
-	return board.irrev.halfMoveClock
+	return board.extra.HalfMoveClock
+}
+
+// ResetHalfMoveClock sets the half move lcock to zero
+func (board *Board) ResetHalfMoveClock() {
+	board.extra.HalfMoveClock = 0
 }
 
 // FullMoveNumber returns the full move number
 func (board *Board) FullMoveNumber() int {
-	return board.fullMoveNumber
-}
-
-// Captured returns the piece captured on the previous move, if any
-func (board *Board) Captured() piece.Piece {
-	return board.irrev.captured
+	return board.extra.FullMoveNumber
 }
 
 // IrreversibleData returns the set of information that cannot be undone on each move
-func (board *Board) IrreversibleData() IrreversibleData {
-	return board.irrev
+func (board *Board) IrreversibleData() Extra {
+	return board.extra
 }
 
-// EmptyBoard returns
+// SetIrreversibleData sets the irreversible data
+func (board *Board) SetIrreversibleData(extra Extra) {
+	board.extra = extra
+}
+
+// EmptyBoard returns an empty board
 func EmptyBoard() *Board {
 	board := Board{
-		fullMoveNumber: 1,
-		sideToMove:     side.White,
-		irrev: IrreversibleData{
-			epSquare:       square.Null,
+		extra: Extra{
+			SideToMove:     side.White,
+			FullMoveNumber: 1,
+			EpSquare:       square.Null,
 			CastlingRights: castling.NoRights,
-			halfMoveClock:  0,
-			captured:       piece.Empty,
+			HalfMoveClock:  0,
 		},
 	}
 
-	for i := 0; i < 14; i++ {
-		board.bitboards[i] = bitboard.Empty
-	}
-
-	for i := 0; i < 64; i++ {
-		board.board[i] = piece.Empty
-	}
-
 	return &board
-}
-
-// Validate returns an error if the board is not valid
-func (board *Board) Validate() error {
-	for sq := square.Square(0); sq < square.Square(64); sq++ {
-		pc := board.board[sq]
-
-		if pc == piece.Empty {
-			for i := 0; i < len(board.bitboards); i++ {
-				if board.bitboards[i].IsSet(sq) {
-					return errors.New("Expected bitboard not to be set (should be empty)")
-				}
-			}
-		} else {
-			side := pc.Side()
-			if board.BBSide(side.Other()).IsSet(sq) {
-				return errors.New("Bitboard was set for opposing side")
-			}
-
-			if !board.BBSide(side).IsSet(sq) {
-				return errors.New("Bitboard was not set for side")
-			}
-
-			if !board.BBPiece(pc).IsSet(sq) {
-				return errors.New("Bitboard was not set for piece")
-			}
-
-			for i := 2; i < len(board.bitboards); i++ {
-				if i != int(pc) && board.bitboards[i].IsSet(sq) {
-					return errors.New("Expected bitboard not to be set")
-				}
-			}
-		}
-	}
-	return nil
 }

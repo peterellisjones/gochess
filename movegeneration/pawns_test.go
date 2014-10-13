@@ -21,18 +21,18 @@ var _ = Describe("GeneratePawnMoves", func() {
 			"a7a5:", "b7b5:", "c7c5:", "d7d5:",
 			"e7e5:", "f7f5:", "g7g5:", "h7h5:",
 		},
-		"8/8/8/8/8/2p5/3p4/4q3 b -": []string{
+		"K7/8/8/8/8/2p5/3p4/4k3 b -": []string{
 			"c3c2",
 			"d2d1=Q", "d2d1=R", "d2d1=B", "d2d1=N",
 		},
-		"8/8/5p2/1p4N/Q7/8/7p/R3q2B b -": []string{
+		"8/8/5pK1/1p4R1/Q7/8/7p/R3k2B b - - 0 1": []string{
 			"b5xa4", "b5b4", "f6xg5", "f6f5",
 		},
-		"8/8/8/8/8/8/2P5/8 w - b3": []string{
+		"k1K5/8/8/8/8/8/2P5/8 w - b3": []string{
 			"c2c3", "c2c4:", "c2xb3e.p.",
 		},
-		"3rR3/4P3/8/8/8/8/8/8 w - b3": []string{
-			"e7xd8=Q","e7xd8=R","e7xd8=B","e7xd8=N",
+		"KN1nN1k1/4P3/8/8/8/8/8/8 w - b3 0 1": []string{
+			"e7xd8=Q", "e7xd8=R", "e7xd8=B", "e7xd8=N",
 		},
 	}
 

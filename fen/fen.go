@@ -2,6 +2,7 @@ package fen
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -21,15 +22,53 @@ type Parts struct {
 	FullMoveNumber int
 }
 
-// GetParts returns the parts of a FEN string
-func GetParts(fen string) (Parts, error) {
-	parts := Parts{
+// New returns an empty parts
+func New() Parts {
+	return Parts{
 		SideToMove:     side.White,
 		CastlingRights: castling.NoRights,
 		EpSquare:       square.Null,
 		HalfMoveClock:  0,
 		FullMoveNumber: 1,
 	}
+}
+
+func (parts *Parts) String() string {
+	str := ""
+	for r := 7; r >= 0; r-- {
+		gap := 0
+		for c := 0; c < 8; c++ {
+			sq := r*8 + c
+			if parts.Board[sq] != piece.Empty {
+				if gap != 0 {
+					str += fmt.Sprintf("%d", gap)
+					gap = 0
+				}
+				str += string(parts.Board[sq].Char())
+			} else {
+				gap++
+			}
+		}
+		if gap != 0 {
+			str += fmt.Sprintf("%d", gap)
+		}
+		if r != 0 {
+			str += "/"
+		}
+	}
+
+	str += " " + parts.SideToMove.Char()
+	str += " " + parts.CastlingRights.String()
+	str += " " + parts.EpSquare.String()
+	str += " " + fmt.Sprintf("%d", parts.HalfMoveClock)
+	str += " " + fmt.Sprintf("%d", parts.FullMoveNumber)
+
+	return str
+}
+
+// PartsFromString returns the parts of a FEN string
+func PartsFromString(fen string) (Parts, error) {
+	parts := New()
 
 	arr := strings.Split(fen, " ")
 

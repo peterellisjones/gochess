@@ -12,10 +12,10 @@ func (gen *Generator) AddCastles(side side.Side) {
 
 		// check no blocking pieces
 		moveMask := [4]bb.Bitboard{
-			bb.SquareB8 | bb.SquareC8 | bb.SquareD8,
-			bb.SquareF8 | bb.SquareG8,
-			bb.SquareB1 | bb.SquareC1 | bb.SquareD1,
-			bb.SquareF1 | bb.SquareG1,
+			bb.F1 | bb.G1,
+			bb.B1 | bb.C1 | bb.D1,
+			bb.F8 | bb.G8,
+			bb.B8 | bb.C8 | bb.D8,
 		}[castle]
 
 		if (moveMask & gen.board.BBEmpty()) != moveMask {
@@ -24,10 +24,10 @@ func (gen *Generator) AddCastles(side side.Side) {
 
 		// check king doesn't pass through check
 		checkMask := [4]bb.Bitboard{
-			bb.SquareC8 | bb.SquareD8 | bb.SquareE8,
-			bb.SquareE8 | bb.SquareF8 | bb.SquareG8,
-			bb.SquareC1 | bb.SquareD1 | bb.SquareE1,
-			bb.SquareE1 | bb.SquareF1 | bb.SquareG1,
+			bb.E1 | bb.F1 | bb.G1,
+			bb.C1 | bb.D1 | bb.E1,
+			bb.E8 | bb.F8 | bb.G8,
+			bb.C8 | bb.D8 | bb.E8,
 		}[castle]
 
 		if AreSquaresAttacked(gen.board, checkMask, side.Other()) {
@@ -35,7 +35,7 @@ func (gen *Generator) AddCastles(side side.Side) {
 		}
 
 		// OK, add move
-		mv := []move.Move{move.QueenSideCastle, move.KingSideCastle}[castle&1]
+		mv := []move.Move{move.KingSideCastle, move.QueenSideCastle}[castle&1]
 		gen.list.Add(mv)
 	})
 }

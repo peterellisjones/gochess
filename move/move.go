@@ -18,8 +18,13 @@ const (
 
 // Premade moves
 const (
-	QueenSideCastle Move = Move(1 << 12)
-	KingSideCastle  Move = Move(3 << 12)
+	KingSideCastle  Move = Move(1 << 12)
+	QueenSideCastle Move = Move(3 << 12)
+)
+
+// Null Move
+const (
+	Null = 0
 )
 
 /*
@@ -40,6 +45,11 @@ const (
         type of piece to promote to
 
 */
+
+// CastleType returns the type of castle
+func (move Move) CastleType() int {
+	return int(move>>13) & 1
+}
 
 // From returns the square to move from (if any)
 func (move Move) From() sq.Square {
@@ -84,7 +94,7 @@ func (move Move) IsDoublePawnPush() bool {
 // IsCastle returns true if the move is a castle
 func (move Move) IsCastle() bool {
 	const mask = Move(13 << 12)
-	return (move & mask) == QueenSideCastle
+	return (move & mask) == KingSideCastle
 }
 
 // IsPromotion returns true if the move is a promotion

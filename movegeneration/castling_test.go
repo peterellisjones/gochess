@@ -15,13 +15,13 @@ var _ = Describe("AddCastles", func() {
 		"r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w Qkq - 0 1": []string{
 			"O-O-O",
 		},
-		"r3k1qr/pppppppp/8/8/8/8/PPPPPPPP/R3K1qR b KQkq - 0 1": []string{
+		"r3k1qr/pppppppp/8/8/8/8/PPPPPPPP/R3KBqR b KQkq - 0 1": []string{
 			"O-O-O",
 		},
-		"r3k2r/8/8/8/8/8/8/1R6 b KQkq - 0 1": []string{
+		"r3k2r/8/8/8/8/8/8/1RK5 b kq - 0 1": []string{
 			"O-O-O", "O-O",
 		},
-		"r3k2r/8/8/8/8/8/8/3R4 b KQkq - 0 1": []string{
+		"r3k2r/8/8/8/8/8/8/3RK3 b kq - 0 1": []string{
 			"O-O",
 		},
 	}

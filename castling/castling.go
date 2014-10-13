@@ -12,12 +12,12 @@ type Right uint8
 // Possible castling rights
 const (
 	NoRights   Right = Right(0)
-	BlackQSide Right = Right(1)
-	BlackKSide Right = Right(2)
-	blackXSide Right = Right(1 + 2)
-	WhiteQSide Right = Right(4)
-	WhiteKSide Right = Right(8)
-	whiteXSide Right = Right(4 + 8)
+	WhiteKSide Right = Right(1)
+	WhiteQSide Right = Right(2)
+	whiteXSide Right = Right(1 + 2)
+	BlackKSide Right = Right(4)
+	BlackQSide Right = Right(8)
+	blackXSide Right = Right(4 + 8)
 )
 
 // BlackCanCastle returns true if black can castle
@@ -54,10 +54,10 @@ func (right Right) Rights() []Right {
 }
 
 var rightNames = map[Right]string{
-	BlackQSide: "q",
-	BlackKSide: "k",
-	WhiteQSide: "Q",
 	WhiteKSide: "K",
+	WhiteQSide: "Q",
+	BlackKSide: "k",
+	BlackQSide: "q",
 }
 
 func (right Right) String() string {
@@ -83,10 +83,10 @@ func Parse(str string) (Right, error) {
 	rights := NoRights
 
 	charToRights := map[byte]Right{
-		'q': BlackQSide,
-		'k': BlackKSide,
-		'Q': WhiteQSide,
 		'K': WhiteKSide,
+		'Q': WhiteQSide,
+		'k': BlackKSide,
+		'q': BlackQSide,
 	}
 
 	for i := 0; i < len(str); i++ {

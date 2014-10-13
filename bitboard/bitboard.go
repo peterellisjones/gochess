@@ -45,6 +45,7 @@ func (bitboard Bitboard) ForEachSetBit(fn func(sq.Square)) {
 func (bitboard Bitboard) BitCount() int {
 	count := 0
 	for ; bitboard != 0; bitboard &= bitboard - 1 {
+		count += 1
 		bitboard.BitScanForward()
 	}
 	return count

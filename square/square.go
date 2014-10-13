@@ -7,6 +7,18 @@ import (
 // Square represents a square on a chess board
 type Square uint8
 
+// represents rows
+const (
+	Row1 = byte(iota)
+	Row2
+	Row3
+	Row4
+	Row5
+	Row6
+	Row7
+	Row8
+)
+
 var columns = []byte{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'}
 var rows = []byte{'1', '2', '3', '4', '5', '6', '7', '8'}
 
@@ -29,7 +41,7 @@ var squareNames = [65]string{
 	"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
 	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
-	"NULL",
+	"-",
 }
 
 // Flip inverts the square

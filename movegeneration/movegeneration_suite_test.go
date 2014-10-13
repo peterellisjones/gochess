@@ -8,6 +8,7 @@ import (
 	"github.com/peterellisjones/gochess/board"
 	"github.com/peterellisjones/gochess/move"
 	"github.com/peterellisjones/gochess/movelist"
+	"github.com/peterellisjones/gochess/validate"
 
 	"testing"
 )
@@ -38,6 +39,9 @@ func ItGeneratesMovesFor(cases map[string][]string, fn MoveGenerator) {
 				It(fmt.Sprintf("generates %s", mvStr), func() {
 					bd, err := board.FromFen(fenStr)
 					Expect(err).ToNot(HaveOccurred())
+					err = validate.Board(bd)
+					Expect(err).ToNot(HaveOccurred())
+
 					list := movelist.New()
 					fn(bd, list)
 					mv, err := move.Parse(mvStr)
@@ -50,6 +54,7 @@ func ItGeneratesMovesFor(cases map[string][]string, fn MoveGenerator) {
 				bd, err := board.FromFen(fenStr)
 				Expect(err).ToNot(HaveOccurred())
 				list := movelist.New()
+
 				fn(bd, list)
 				Expect(list.Length()).To(Equal(len(exMoves)))
 			})
