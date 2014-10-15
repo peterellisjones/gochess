@@ -71,16 +71,20 @@ func Make(mv move.Move, bd *board.Board) *MoveData {
 			newIrreversibleData.EpSquare = epSquare
 		}
 
+		// remove and record captured piece if capture
 		if isCapture {
-			captureSq := mv.To()
+			var captureSq square.Square
 			if mv.IsEpCapture() {
 				captureSq = (mv.To() & 7) | (mv.From() & 56)
+			} else {
+				captureSq = mv.To()
 			}
 			captured := bd.At(captureSq)
 			bd.Remove(captureSq)
 			moveData.Captured = captured
 		}
 
+		// move piece
 		bd.Move(mv.From(), mv.To())
 	}
 
@@ -117,10 +121,10 @@ func updateRights(mv move.Move, bd *board.Board) castling.Right {
 	side := bd.SideToMove()
 	newRights := original
 
-	for i := uint(0); i < 2; i++ {
-		rook := rookCastleMoves[side][i][0]
-		if mv.From() == rook {
-			right := (castling.WhiteKSide << i) << (side << 1)
+	for i := uint(0); i < 4; i++ {
+		rook := rookCastleMoves[i>>1][i&1][0]
+		if mv.From() == rook || mv.To() == rook {
+			right := castling.WhiteKSide << i
 			newRights &= ^right
 		}
 	}

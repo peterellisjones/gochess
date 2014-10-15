@@ -15,6 +15,7 @@ import (
 
 // Board returns an error if the board is not valid
 func Board(board *bd.Board) error {
+		// check piece array
 	for sq := square.Square(0); sq < square.Square(64); sq++ {
 		pc := board.At(sq)
 
@@ -49,6 +50,49 @@ func Board(board *bd.Board) error {
 					return errors.New("Expected bitboard not to be set")
 				}
 			}
+		}
+	}
+
+	// check color bitboards
+	for sd := side.White; sd <= side.Black; sd++ {
+		var err error = nil
+		board.BBSide(sd).ForEach(func(sq square.Square, set bool){
+		  pc := board.At(sq)
+			if set {
+				if pc == piece.Empty || pc.Side() != sd {
+					err = errors.New("Expected piece for this side")
+					return
+				}
+			} else {
+				if pc != piece.Empty && pc.Side() == sd {
+					err = errors.New("Expected piece to be empty")
+					return
+				}
+			}
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	for pc := piece.WhitePawn; pc <= piece.BlackKing; pc++ {
+		var err error = nil
+		board.BBPiece(pc).ForEach(func(sq square.Square, set bool){
+			p := board.At(sq)
+			if set {
+				if p != pc {
+					err = errors.New("Expected piece of certain type")
+					return
+				}
+			} else {
+				if p == pc {
+					err = errors.New("Expected piece to be empty!")
+					return
+				}
+			}
+		})
+		if err != nil {
+			return err
 		}
 	}
 

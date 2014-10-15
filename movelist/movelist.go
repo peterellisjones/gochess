@@ -23,6 +23,12 @@ func (list *MoveList) Length() int {
 	return list.size
 }
 
+// Clear empties the list
+func (list *MoveList) Clear() {
+	list.size = 0
+}
+
+
 // Add adds a move to a list
 func (list *MoveList) Add(move move.Move) {
 	list.moves[list.size] = move

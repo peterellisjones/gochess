@@ -22,7 +22,7 @@ var _ = Describe("Board", func() {
 		Expect(err).ToNot(HaveOccurred())
 	})
 
-	Describe("Board", func() {
+	Describe("Add", func() {
 		It("Adds the piece", func() {
 			board := EmptyBoard()
 			board.Add(piece.BlackBishop, square.C4)

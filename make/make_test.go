@@ -73,6 +73,18 @@ var _ = Describe("Make & UnMake", func() {
 			"move":        "O-O-O",
 			"description": "castle",
 		},
+		map[string]string{
+			"initial":     "r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1",
+			"final":       "2kr1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 1 2",
+			"move":        "O-O-O",
+			"description": "castle",
+		},
+		map[string]string{
+			"initial": "r1bqkbnr/pppppp1p/n5p1/8/8/1P6/PBPPPPPP/RN1QKBNR w KQkq - 0 3",
+				"final": "r1bqkbnB/pppppp1p/n5p1/8/8/1P6/P1PPPPPP/RN1QKBNR b KQq - 0 3",
+				"move": "b2xh8",
+				"description": "check castling rights removed",
+		},
 	}
 
 	for _, c := range cases {
