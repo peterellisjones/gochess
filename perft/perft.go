@@ -92,10 +92,51 @@ func (results Results) Captures() int64 {
 	return count
 }
 
+func (results Results) EpCaptures() int64 {
+	count := int64(0)
+	for _, result := range results {
+		count += result.EpCaptures
+	}
+	return count
+}
+
+func (results Results) Castles() int64 {
+	count := int64(0)
+	for _, result := range results {
+		count += result.Castles
+	}
+	return count
+}
+
+func (results Results) Promotions() int64 {
+	count := int64(0)
+	for _, result := range results {
+		count += result.Promotions
+	}
+	return count
+}
+
+func (results Results) Checks() int64 {
+	count := int64(0)
+	for _, result := range results {
+		count += result.Checks
+	}
+	return count
+}
+
 func (results MovesResults) String() string {
-	str := "Move\tNodes\n"
+	str := "Move\tNodes\nCaptures\nEpCaptures\nCastles\nPromotions\nChecks"
 	for mv, result := range results {
-		str += mv.String() + "\t" + fmt.Sprintf("%d", result.Nodes()) + "\n"
+		str += fmt.Sprintf(
+			"%s\t%d\t%d\n",
+			mv.String(),
+			result.Nodes(),
+			result.Captures(),
+			result.EpCaptures(),
+			result.Castles(),
+			result.Promotions(),
+			result.Checks(),
+		)
 	}
 	return str
 }
