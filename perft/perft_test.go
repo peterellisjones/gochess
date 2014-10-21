@@ -126,6 +126,35 @@ var _ = Describe("Perft", func() {
 				},
 			},
 		},
+		Case{
+			fen: "rnbqkb1r/pp1p1ppp/2p5/4P3/2B5/8/PPP1NnPP/RNBQK2R w KQkq - 0 6",
+			results: []Result{
+				Result{
+					Nodes:      42,
+					Captures:   3,
+					EpCaptures: 0,
+					Castles:    1,
+					Promotions: 0,
+					Checks:     2,
+				},
+				Result{
+					Nodes:      1352,
+					Captures:   95,
+					EpCaptures: 0,
+					Castles:    0,
+					Promotions: 0,
+					Checks:     103,
+				},
+				Result{
+					Nodes:      53392,
+					Captures:   4381,
+					EpCaptures: 75,
+					Castles:    969,
+					Promotions: 0,
+					Checks:     2269,
+				},
+			},
+		},
 	}
 
 	for _, c := range cases {
