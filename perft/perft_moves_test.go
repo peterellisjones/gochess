@@ -15,11 +15,6 @@ var _ = Describe("Perft divide and conquer", func() {
 		results map[string]int64
 	}
 
-	It("can do stuff", func() {
-		//bd, _ := board.FromFen("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1")
-
-	})
-
 	cases := []Case{
 		Case{
 			fen:   "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1",
