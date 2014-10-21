@@ -23,3 +23,10 @@ Ginkgo ran 10 suites in 1.972268982s
 Test Suite Passed
 
 ```
+
+TODO:
+- Move evaluation
+- Naive search
+- Alpha-beta search
+- Zobrist hashing
+- UCI support
