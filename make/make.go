@@ -12,6 +12,7 @@ import (
 // undo easier
 type MoveData struct {
 	Captured piece.Piece
+	Mover    piece.Piece
 	Move     move.Move
 	Extra    board.Extra
 }
@@ -60,8 +61,11 @@ func Make(mv move.Move, bd *board.Board) *MoveData {
 		newIrreversibleData.CastlingRights = updateRights(mv, bd)
 		isCapture := mv.IsCapture()
 
+		mover := bd.At(mv.From())
+		moveData.Mover = mover
+
 		// reset HMC if pawn move or capture
-		if bd.At(mv.From()).Type() == piece.Pawn || isCapture {
+		if mover.Type() == piece.Pawn || isCapture {
 			newIrreversibleData.HalfMoveClock = 0
 		}
 
@@ -84,8 +88,15 @@ func Make(mv move.Move, bd *board.Board) *MoveData {
 			moveData.Captured = captured
 		}
 
-		// move piece
-		bd.Move(mv.From(), mv.To())
+		// set promotion piece if promotion
+		if mv.IsPromotion() {
+			bd.Remove(mv.From())
+			promoteTo := piece.ForSide(mv.PromoteTo(), side)
+			bd.Add(promoteTo, mv.To())
+		} else {
+			// otherwise move piece
+			bd.Move(mv.From(), mv.To())
+		}
 	}
 
 	bd.SetIrreversibleData(newIrreversibleData)

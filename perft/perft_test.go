@@ -1,7 +1,6 @@
 package perft_test
 
 import (
-	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/peterellisjones/gochess/perft"
@@ -127,21 +126,15 @@ var _ = Describe("Perft", func() {
 				},
 			},
 		},
-		Case{
-			fen:     "r2q1rk1/pP1p2pp/Q4n2/bb2p3/Npp5/1B3NBn/pPPP1PPP/R3K2R w KQ - 0 2",
-			results: []Result{},
-		},
 	}
 
 	for _, c := range cases {
 		cLocal := c
 		It(cLocal.fen, func() {
-			ex, _ := PerftMoves(cLocal.fen, len(cLocal.results))
-			fmt.Println(ex.String())
 
 			actual, err := Perft(cLocal.fen, len(cLocal.results))
 			Expect(err).ToNot(HaveOccurred())
-			Expect(actual).To(Equal(cLocal.results))
+			Expect(actual).To(Equal(Results(cLocal.results)))
 		})
 	}
 })

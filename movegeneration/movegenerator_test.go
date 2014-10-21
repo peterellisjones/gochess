@@ -48,6 +48,19 @@ var _ = Describe("GenerateKnightMoves", func() {
 			"h8g8", "h8f8", "h8h7", "h8h6", "h8h5", "h8h4",
 			"O-O", "O-O-O",
 		},
+		"r2q1rk1/pP1p2pp/Q4n2/b1p1p3/Npb5/1B3NBn/pPPP1PPP/R3K2R w KQ - 1": []string{
+			"O-O-O", "f3g1", "f3d4", "f3h4",
+			"f3xe5", "f3g5", "a4c3", "a4xc5",
+			"a4b6", "a1b1", "a1c1", "a1d1",
+			"a1xa2", "h1f1", "h1g1", "a6xa5",
+			"a6b6", "a6c6", "a6d6", "a6e6",
+			"a6xf6", "a6xa7", "b3xa2", "b3xc4",
+			"g3f4", "g3h4", "g3xe5", "a6xc4",
+			"a6b5", "e1d1", "e1f1", "e1e2",
+			"c2c3", "d2d3", "g2xh3", "d2d4:",
+			"b7xa8=Q", "b7xa8=N", "b7xa8=R", "b7xa8=B",
+			"b7b8=Q", "b7b8=N", "b7b8=R", "b7b8=B",
+		},
 	}
 
 	ItGeneratesMovesFor(cases, func(bd *board.Board, list *movelist.MoveList) {

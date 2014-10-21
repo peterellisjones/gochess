@@ -28,7 +28,6 @@ func (list *MoveList) Clear() {
 	list.size = 0
 }
 
-
 // Add adds a move to a list
 func (list *MoveList) Add(move move.Move) {
 	list.moves[list.size] = move
@@ -40,6 +39,18 @@ func (list *MoveList) ForEach(fn func(move.Move)) {
 	for i := 0; i < list.size; i++ {
 		fn(list.moves[i])
 	}
+}
+
+func (list *MoveList) ToStringArray() []string {
+	arr := make([]string, list.size)
+	for i, mv := range list.moves {
+		if i == list.size {
+			break
+		}
+		arr[i] = mv.String()
+	}
+
+	return arr
 }
 
 // Includes returns true if the list contains a given move

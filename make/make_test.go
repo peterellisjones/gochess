@@ -80,10 +80,28 @@ var _ = Describe("Make & UnMake", func() {
 			"description": "castle",
 		},
 		map[string]string{
-			"initial": "r1bqkbnr/pppppp1p/n5p1/8/8/1P6/PBPPPPPP/RN1QKBNR w KQkq - 0 3",
-				"final": "r1bqkbnB/pppppp1p/n5p1/8/8/1P6/P1PPPPPP/RN1QKBNR b KQq - 0 3",
-				"move": "b2xh8",
-				"description": "check castling rights removed",
+			"initial":     "r1bqkbnr/pppppp1p/n5p1/8/8/1P6/PBPPPPPP/RN1QKBNR w KQkq - 0 3",
+			"final":       "r1bqkbnB/pppppp1p/n5p1/8/8/1P6/P1PPPPPP/RN1QKBNR b KQq - 0 3",
+			"move":        "b2xh8",
+			"description": "check castling rights removed",
+		},
+		map[string]string{
+			"initial":     "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1",
+			"final":       "r2q1r1k/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R w KQ - 1 2",
+			"move":        "g8h8",
+			"description": "general",
+		},
+		map[string]string{
+			"initial":     "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1",
+			"final":       "r2q2k1/pP1p1rpp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R w KQ - 1 2",
+			"move":        "f8f7",
+			"description": "general",
+		},
+		map[string]string{
+			"initial":     "r2q2k1/pP1p1rpp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R w KQ - 1 2",
+			"final":       "Q2q2k1/p2p1rpp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 2",
+			"move":        "b7xa8=Q",
+			"description": "promotions",
 		},
 	}
 

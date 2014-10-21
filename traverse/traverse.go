@@ -33,7 +33,7 @@ func Traverse(board *bd.Board, depth int, fn func(int, mv.Move, *bd.Board)) {
 	return
 }
 
-func (trav *traverser) traverse(depth int,  fn func(int, mv.Move,  *bd.Board)) {
+func (trav *traverser) traverse(depth int, fn func(int, mv.Move, *bd.Board)) {
 	if depth <= 0 {
 		return
 	}
@@ -41,6 +41,8 @@ func (trav *traverser) traverse(depth int,  fn func(int, mv.Move,  *bd.Board)) {
 	list := ml.New()
 	generator := gen.New(trav.board, list)
 	generator.AddAllMoves(trav.board.SideToMove())
+
+	//fen := trav.board.Fen()
 
 	list.ForEach(func(move mv.Move) {
 		trav.stack.Make(move)
@@ -52,4 +54,8 @@ func (trav *traverser) traverse(depth int,  fn func(int, mv.Move,  *bd.Board)) {
 		trav.traverse(depth-1, fn)
 		trav.stack.UnMake()
 	})
+
+	// if trav.board.Fen() != fen {
+	// 	panic("FEN CHANGED!")
+	// }
 }

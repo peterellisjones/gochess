@@ -1,7 +1,7 @@
 package perft
 
 import (
-	"fmt"
+	"errors"
 	"github.com/peterellisjones/gochess/board"
 	"github.com/peterellisjones/gochess/move"
 	"github.com/peterellisjones/gochess/movegeneration"
@@ -17,42 +17,49 @@ type Result struct {
 	Checks     int64
 }
 
+type SimpleResult struct {
+	Nodes int64
+}
+
 type Results []Result
 
-type MovesResults map[move.Move]Results
-
-func PerftMoves(fen string, depth int) (MovesResults, error) {
+func PerftMoves(fen string, depth int) (map[string]int64, error) {
 	bd, err := board.FromFen(fen)
 	if err != nil {
 		return nil, err
 	}
 
-	ret := MovesResults{}
+	ret := map[string]int64{}
+
+	if depth == 0 {
+		return ret, errors.New("Depth cannot be 0")
+	}
 
 	traverse.Traverse(bd, 1, func(d int, mv move.Move, bd *board.Board) {
-		var results []Result
+		var results Results
+
 		results, err = Perft(bd.Fen(), depth-1)
 		if err != nil {
 			return
 		}
 
-		// fmt.Println("***************************")
-		// fmt.Println(mv)
-		// fmt.Println(bd.Fen())
-
-		ret[mv] = results
+		ret[mv.String()] = results.LeafNodes()
 	})
 
 	return ret, err
 }
 
-func Perft(fen string, depth int) ([]Result, error) {
+func (results Results) LeafNodes() int64 {
+	return results[len(results)-1].Nodes
+}
+
+func Perft(fen string, depth int) (Results, error) {
 	bd, err := board.FromFen(fen)
 	if err != nil {
 		return nil, err
 	}
 
-	results := make([]Result, depth)
+	results := Results(make([]Result, depth))
 
 	traverse.Traverse(bd, depth, func(d int, mv move.Move, bd *board.Board) {
 		results[d-1].Nodes++
@@ -124,19 +131,28 @@ func (results Results) checks() int64 {
 	return count
 }
 
-func (results MovesResults) String() string {
-	str := "Move\tNodes\nCaptures\nEpCaptures\nCastles\nPromotions\nChecks"
-	for mv, result := range results {
-		str += fmt.Sprintf(
-			"%s\t%d\t%d\t%d\t%d\t%d\t%d\n",
-			mv.String(),
-			result.nodes(),
-			result.captures(),
-			result.epCaptures(),
-			result.castles(),
-			result.promotions(),
-			result.checks(),
-		)
-	}
-	return str
-}
+// func (results MovesResults) String() string {
+// 	str := fmt.Sprintf(
+// 		"%10s %10s %10s %10s %10s %10s %10s\n",
+// 		"Move",
+// 		"Nodes",
+// 		"Captures",
+// 		"EpCaptures",
+// 		"Castles",
+// 		"Promotions",
+// 		"Checks",
+// 	)
+// 	for mv, result := range results {
+// 		str += fmt.Sprintf(
+// 			"%10s %10d %10d %10d %10d %10d %10d\n",
+// 			mv.String(),
+// 			result.nodes(),
+// 			result.captures(),
+// 			result.epCaptures(),
+// 			result.castles(),
+// 			result.promotions(),
+// 			result.checks(),
+// 		)
+// 	}
+// 	return str
+// }

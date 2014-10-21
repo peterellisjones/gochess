@@ -13,7 +13,15 @@ func UnMake(bd *board.Board, data *MoveData) {
 	if mv.IsCastle() {
 		unmakeCastle(mv, bd)
 	} else {
-		bd.Move(mv.To(), mv.From())
+
+		// set promotion piece if promotion
+		if mv.IsPromotion() {
+			bd.Remove(mv.To())
+			bd.Add(data.Mover, mv.From())
+		} else {
+			// otherwise move piece
+			bd.Move(mv.To(), mv.From())
+		}
 
 		if mv.IsCapture() {
 			captureSq := mv.To()

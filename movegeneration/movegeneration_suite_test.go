@@ -56,7 +56,13 @@ func ItGeneratesMovesFor(cases map[string][]string, fn MoveGenerator) {
 				list := movelist.New()
 
 				fn(bd, list)
-				Expect(list.Length()).To(Equal(len(exMoves)))
+				list.ForEach(func(mv move.Move) {
+					Expect(exMoves).To(ContainElement(mv.String()))
+				})
+
+				for _, mv := range exMoves {
+					Expect(list.ToStringArray()).To(ContainElement(mv))
+				}
 			})
 		})
 	}

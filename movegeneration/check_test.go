@@ -11,7 +11,9 @@ import (
 
 var _ = Describe("InCheck", func() {
 	cases := map[string]bool{
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1": false,
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1":        false,
+		"r2q1rk1/pP1p2pp/Q4n2/b1p1p3/Npb5/1B3NBn/pPPP1PPP/R3K2R w KQ - 1": false,
+		"r2q1rk1/pP1p2pp/Q4n2/b1p1p3/Npb5/1B3NBn/pPPP1PPP/R4K3R w KQ - 1": true,
 	}
 
 	for fen, inCheckBool := range cases {
