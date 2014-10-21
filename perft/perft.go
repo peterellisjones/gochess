@@ -76,7 +76,7 @@ func Perft(fen string, depth int) ([]Result, error) {
 	return results, nil
 }
 
-func (results Results) Nodes() int64 {
+func (results Results) nodes() int64 {
 	count := int64(0)
 	for _, result := range results {
 		count += result.Nodes
@@ -84,7 +84,7 @@ func (results Results) Nodes() int64 {
 	return count
 }
 
-func (results Results) Captures() int64 {
+func (results Results) captures() int64 {
 	count := int64(0)
 	for _, result := range results {
 		count += result.Captures
@@ -92,7 +92,7 @@ func (results Results) Captures() int64 {
 	return count
 }
 
-func (results Results) EpCaptures() int64 {
+func (results Results) epCaptures() int64 {
 	count := int64(0)
 	for _, result := range results {
 		count += result.EpCaptures
@@ -100,7 +100,7 @@ func (results Results) EpCaptures() int64 {
 	return count
 }
 
-func (results Results) Castles() int64 {
+func (results Results) castles() int64 {
 	count := int64(0)
 	for _, result := range results {
 		count += result.Castles
@@ -108,7 +108,7 @@ func (results Results) Castles() int64 {
 	return count
 }
 
-func (results Results) Promotions() int64 {
+func (results Results) promotions() int64 {
 	count := int64(0)
 	for _, result := range results {
 		count += result.Promotions
@@ -116,7 +116,7 @@ func (results Results) Promotions() int64 {
 	return count
 }
 
-func (results Results) Checks() int64 {
+func (results Results) checks() int64 {
 	count := int64(0)
 	for _, result := range results {
 		count += result.Checks
@@ -128,14 +128,14 @@ func (results MovesResults) String() string {
 	str := "Move\tNodes\nCaptures\nEpCaptures\nCastles\nPromotions\nChecks"
 	for mv, result := range results {
 		str += fmt.Sprintf(
-			"%s\t%d\t%d\n",
+			"%s\t%d\t%d\t%d\t%d\t%d\t%d\n",
 			mv.String(),
-			result.Nodes(),
-			result.Captures(),
-			result.EpCaptures(),
-			result.Castles(),
-			result.Promotions(),
-			result.Checks(),
+			result.nodes(),
+			result.captures(),
+			result.epCaptures(),
+			result.castles(),
+			result.promotions(),
+			result.checks(),
 		)
 	}
 	return str
