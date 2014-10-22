@@ -19,9 +19,12 @@ type Extra struct {
 
 // Board represents a chess board
 type Board struct {
-	board     [64]piece.Piece
-	bitboards [14]bitboard.Bitboard
-	extra     Extra
+	board           [64]piece.Piece
+	bitboards       [14]bitboard.Bitboard
+	pieceLists      [12][10]square.Square
+	pieceListsIdxs  [64]int
+	pieceListsSizes [12]int
+	extra           Extra
 }
 
 // Add adds a piece to the board on a given square
@@ -30,6 +33,37 @@ func (board *Board) Add(pc piece.Piece, sq square.Square) {
 	board.board[sq] = pc
 	board.bitboards[pc] = board.bitboards[pc].Set(sq)
 	board.bitboards[side] = board.bitboards[side].Set(sq)
+
+	pcIdx := pc - 2
+	pieceListIdx := board.pieceListsSizes[pc-2]
+	board.pieceListsIdxs[sq] = pieceListIdx
+	board.pieceLists[pcIdx][pieceListIdx] = sq
+	board.pieceListsSizes[pcIdx]++
+
+	return
+}
+
+func (board *Board) ForEachPieceOfSide(sd side.Side, fn func(piece.Piece, square.Square)) {
+	for pc := piece.ForSide(piece.Pawn, sd); pc <= piece.BlackKing; pc += 2 {
+		pcIdx := pc - 2
+		size := board.pieceListsSizes[pcIdx]
+		for i := 0; i < size; i++ {
+			sq := board.pieceLists[pcIdx][i]
+			fn(pc, sq)
+		}
+	}
+}
+
+func (board *Board) PieceListIndex(sq square.Square) int {
+	return board.pieceListsIdxs[sq]
+}
+
+func (board *Board) PieceListSize(pc piece.Piece) int {
+	return board.pieceListsSizes[pc-2]
+}
+
+func (board *Board) PieceList(pc piece.Piece) [10]square.Square {
+	return board.pieceLists[pc-2]
 }
 
 // Move moves a piece
@@ -42,6 +76,11 @@ func (board *Board) Move(from square.Square, to square.Square) {
 	sd := pc.Side()
 	board.bitboards[sd] ^= mask
 	board.bitboards[pc] ^= mask
+
+	pieceListIdx := board.pieceListsIdxs[from]
+	board.pieceLists[pc-2][pieceListIdx] = to
+	board.pieceListsIdxs[from] = -1
+	board.pieceListsIdxs[to] = pieceListIdx
 }
 
 // Remove removes a piece from the board
@@ -54,6 +93,23 @@ func (board *Board) Remove(sq square.Square) {
 	mask := bitboard.Bitboard(1) << sq
 	board.bitboards[pc] ^= mask
 	board.bitboards[side] ^= mask
+
+	pcIdx := pc - 2
+	pieceListIdx := board.pieceListsIdxs[sq]
+	pieceListLastIdx := board.pieceListsSizes[pcIdx] - 1
+	lastPieceSq := board.pieceLists[pcIdx][pieceListLastIdx]
+	board.pieceLists[pcIdx][pieceListIdx] = lastPieceSq
+	board.pieceListsIdxs[lastPieceSq] = pieceListIdx
+
+	board.pieceListsSizes[pcIdx]--
+}
+
+func (board *Board) EachPieceOfType(pc piece.Piece, fn func(square.Square)) {
+	size := board.pieceListsSizes[pc-2]
+	for i := 0; i < size; i++ {
+		sq := board.pieceLists[pc-2][i]
+		fn(sq)
+	}
 }
 
 // At returns the piece on a given square (if any)

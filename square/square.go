@@ -46,7 +46,14 @@ var squareNames = [65]string{
 
 // Flip inverts the square
 func (square Square) Flip() Square {
-	return (Square(56) - (square & Square(56))) | (square & Square(7))
+	return square ^ Square(56)
+}
+
+// ForEach iterates over all squares
+func ForEach(fn func(Square)) {
+	for sq := A1; sq <= H8; sq++ {
+		fn(sq)
+	}
 }
 
 // CircularTranslate transaltes the square mod 64

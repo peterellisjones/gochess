@@ -28,10 +28,9 @@ func (gen *Generator) AddQueenMoves(sd side.Side) {
 
 func (gen *Generator) addSliderMoves(piece piece.Piece, getRayAttacks getAttacks) {
 	enemy := gen.board.BBSide(piece.Side().Other())
-	movers := gen.board.BBPiece(piece)
 	occupied := gen.board.BBOccupied()
 
-	movers.ForEachSetBit(func(from square.Square) {
+	gen.board.EachPieceOfType(piece, func(from square.Square) {
 		targets := getRayAttacks(occupied, from)
 		captures := targets & enemy
 		nonCaptures := targets & (^occupied)

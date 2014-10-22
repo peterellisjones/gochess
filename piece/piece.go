@@ -6,6 +6,12 @@ import (
 	"github.com/peterellisjones/gochess/side"
 )
 
+type pieceInfo struct {
+	Name     string
+	TypeName string
+	Char     string
+}
+
 var pieceChars = map[Piece]byte{
 	Empty:       '.',
 	Error:       'e',
@@ -39,12 +45,19 @@ var charPieces = map[byte]Piece{
 }
 
 var pieceNames = map[Piece]string{
-	Empty:  "Empty",
-	Knight: "Knight",
-	Bishop: "Bishop",
-	Rook:   "Rook",
-	Queen:  "Queen",
-	King:   "King",
+	Empty:  "empty",
+	Knight: "knight",
+	Bishop: "bishop",
+	Rook:   "rook",
+	Queen:  "queen",
+	King:   "king",
+}
+
+// ForEach executes a callback for each piece
+func ForEach(fn func(Piece)) {
+	for p := WhitePawn; p <= BlackKing; p++ {
+		fn(p)
+	}
 }
 
 // Side returns the side the piece belongs to
@@ -52,9 +65,18 @@ func (piece Piece) Side() side.Side {
 	return side.Side(piece & 1)
 }
 
+func (piece Piece) TypeName() string {
+	return pieceNames[piece.Type()]
+}
+
 // Type removes the side information
 func (piece Piece) Type() Piece {
 	return piece & 0xFE
+}
+
+// Idx returns the index of the piece in the array of valid pieces
+func (piece Piece) Idx() int {
+	return int(piece) - 2
 }
 
 // ForSide returns a piece for a given side
@@ -64,6 +86,23 @@ func ForSide(piece Piece, side side.Side) Piece {
 
 func (piece Piece) String() string {
 	return piece.Side().String() + " " + pieceNames[piece.Type()]
+}
+
+// ShortString returns the piece as a one-character string
+func (piece Piece) ShortString() string {
+	return fmt.Sprintf("%s", piece.Char())
+}
+
+// ParseName returns the piece given a lowercase name
+func ParseType(name string) Piece {
+	return map[string]Piece{
+		"pawn":   WhitePawn,
+		"knight": WhiteKnight,
+		"bishop": WhiteBishop,
+		"rook":   WhiteRook,
+		"queen":  WhiteQueen,
+		"king":   WhiteKing,
+	}[name]
 }
 
 // Char returns a character reprentation of the piece

@@ -36,9 +36,9 @@ func (gen *Generator) AddKingMoves(side side.Side) {
 // GetKingAttackedSquares returns the set of king attacks
 func GetKingAttackedSquares(bd *board.Board, attacker side.Side) bitboard.Bitboard {
 	piece := piece.ForSide(piece.King, attacker)
-	movers := bd.BBPiece(piece)
 	attackedSquares := bitboard.Empty
-	movers.ForEachSetBit(func(from square.Square) {
+
+	bd.EachPieceOfType(piece, func(from square.Square) {
 		attackedSquares |= kingMoves[from]
 	})
 	return attackedSquares

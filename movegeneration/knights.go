@@ -38,7 +38,7 @@ func (gen *Generator) addLookupTableMoves(piece piece.Piece, table *[64]bitboard
 	enemy := gen.board.BBSide(piece.Side().Other())
 	empty := gen.board.BBEmpty()
 
-	gen.board.BBPiece(piece).ForEachSetBit(func(from square.Square) {
+	gen.board.EachPieceOfType(piece, func(from square.Square) {
 		targets := table[from]
 		captures := targets & enemy
 		moves := targets & empty
@@ -59,9 +59,9 @@ func (gen *Generator) addMoves(moves bitboard.Bitboard, captures bitboard.Bitboa
 // GetKnightAttackedSquares returns the set of knight attacks
 func GetKnightAttackedSquares(bd *board.Board, attacker side.Side) bitboard.Bitboard {
 	piece := piece.ForSide(piece.Knight, attacker)
-	movers := bd.BBPiece(piece)
 	attackedSquares := bitboard.Empty
-	movers.ForEachSetBit(func(from square.Square) {
+
+	bd.EachPieceOfType(piece, func(from square.Square) {
 		attackedSquares |= knightMoves[from]
 	})
 	return attackedSquares
