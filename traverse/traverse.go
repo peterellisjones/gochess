@@ -4,58 +4,52 @@ import (
 	bd "github.com/peterellisjones/gochess/board"
 	mv "github.com/peterellisjones/gochess/move"
 	gen "github.com/peterellisjones/gochess/movegeneration"
-	ml "github.com/peterellisjones/gochess/movelist"
 	st "github.com/peterellisjones/gochess/stack"
 )
 
 type traverser struct {
-	board *bd.Board
-	stack *st.Stack
+	board    *bd.Board
+	stack    *st.Stack
+	maxDepth int
 }
 
-func new(board *bd.Board) *traverser {
+func new(board *bd.Board, maxDepth int) *traverser {
 	return &traverser{
-		stack: st.New(board),
-		board: board,
+		stack:    st.New(board),
+		board:    board,
+		maxDepth: maxDepth,
 	}
 }
 
 // Traverse traverses every node up to a certain depth, calling a callback
-func Traverse(board *bd.Board, depth int, fn func(int, mv.Move, *bd.Board)) {
+func Traverse(board *bd.Board, depth int, fn func(int, mv.Move)) {
 
 	if depth <= 0 {
 		return
 	}
 
-	trav := new(board)
-	trav.traverse(depth, fn)
+	trav := new(board, depth)
+	trav.traverse(1, fn)
 
 	return
 }
 
-func (trav *traverser) traverse(depth int, fn func(int, mv.Move, *bd.Board)) {
-	if depth <= 0 {
-		return
-	}
+func (trav *traverser) traverse(depth int, fn func(int, mv.Move)) {
+	generator := gen.New(trav.board)
 
-	list := ml.New()
-	generator := gen.New(trav.board, list)
-	generator.AddAllMoves(trav.board.SideToMove())
+	generator.ForEachMove(trav.board.SideToMove(), func(move mv.Move) {
 
-	//fen := trav.board.Fen()
-
-	list.ForEach(func(move mv.Move) {
 		trav.stack.Make(move)
 		if gen.InCheck(trav.board, trav.board.SideToMove().Other()) {
 			trav.stack.UnMake()
 			return
 		}
-		fn(trav.stack.Depth(), move, trav.board)
-		trav.traverse(depth-1, fn)
+		stackDepth := trav.stack.Depth()
+		fn(stackDepth, move)
+
+		if depth < trav.maxDepth {
+			trav.traverse(depth+1, fn)
+		}
 		trav.stack.UnMake()
 	})
-
-	// if trav.board.Fen() != fen {
-	// 	panic("FEN CHANGED!")
-	// }
 }

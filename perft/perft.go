@@ -2,6 +2,7 @@ package perft
 
 import (
 	"errors"
+
 	"github.com/peterellisjones/gochess/board"
 	"github.com/peterellisjones/gochess/move"
 	"github.com/peterellisjones/gochess/movegeneration"
@@ -35,7 +36,7 @@ func PerftMoves(fen string, depth int) (map[string]int64, error) {
 		return ret, errors.New("Depth cannot be 0")
 	}
 
-	traverse.Traverse(bd, 1, func(d int, mv move.Move, bd *board.Board) {
+	traverse.Traverse(bd, 1, func(d int, mv move.Move) {
 		var results Results
 
 		results, err = Perft(bd.Fen(), depth-1)
@@ -53,30 +54,30 @@ func (results Results) LeafNodes() int64 {
 	return results[len(results)-1].Nodes
 }
 
-func Perft(fen string, depth int) (Results, error) {
+func Perft(fen string, maxdepth int) (Results, error) {
 	bd, err := board.FromFen(fen)
 	if err != nil {
 		return nil, err
 	}
 
-	results := Results(make([]Result, depth))
+	results := Results(make([]Result, maxdepth))
 
-	traverse.Traverse(bd, depth, func(d int, mv move.Move, bd *board.Board) {
-		results[d-1].Nodes++
+	traverse.Traverse(bd, maxdepth, func(depth int, mv move.Move) {
+		results[depth-1].Nodes++
 		if mv.IsCapture() {
-			results[d-1].Captures++
+			results[depth-1].Captures++
 		}
 		if mv.IsCastle() {
-			results[d-1].Castles++
+			results[depth-1].Castles++
 		}
 		if mv.IsEpCapture() {
-			results[d-1].EpCaptures++
+			results[depth-1].EpCaptures++
 		}
 		if mv.IsPromotion() {
-			results[d-1].Promotions++
+			results[depth-1].Promotions++
 		}
 		if movegeneration.InCheck(bd, bd.SideToMove()) {
-			results[d-1].Checks++
+			results[depth-1].Checks++
 		}
 	})
 

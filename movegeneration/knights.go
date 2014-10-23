@@ -28,13 +28,12 @@ var knightMoves = [64]bitboard.Bitboard{
 	0x0044280000000000, 0x0088500000000000, 0x0010A00000000000, 0x0020400000000000,
 }
 
-// AddKnightMoves generates knight moves
-func (gen *Generator) AddKnightMoves(sd side.Side) {
-	pc := piece.ForSide(piece.Knight, sd)
-	gen.addLookupTableMoves(pc, &knightMoves)
+func (gen *Generator) ForEachKnightMove(side side.Side, fn func(move.Move)) {
+	pc := piece.ForSide(piece.Knight, side)
+	gen.forEachLookupTableMove(pc, &knightMoves, fn)
 }
 
-func (gen *Generator) addLookupTableMoves(piece piece.Piece, table *[64]bitboard.Bitboard) {
+func (gen *Generator) forEachLookupTableMove(piece piece.Piece, table *[64]bitboard.Bitboard, fn func(move.Move)) {
 	enemy := gen.board.BBSide(piece.Side().Other())
 	empty := gen.board.BBEmpty()
 
@@ -42,17 +41,14 @@ func (gen *Generator) addLookupTableMoves(piece piece.Piece, table *[64]bitboard
 		targets := table[from]
 		captures := targets & enemy
 		moves := targets & empty
-		gen.addMoves(moves, captures, from)
-	})
-}
 
-func (gen *Generator) addMoves(moves bitboard.Bitboard, captures bitboard.Bitboard, from square.Square) {
-	captures.ForEachSetBit(func(to square.Square) {
-		gen.list.Add(move.EncodeCapture(from, to))
-	})
+		captures.ForEachSetBit(func(to square.Square) {
+			fn(move.EncodeCapture(from, to))
+		})
 
-	moves.ForEachSetBit(func(to square.Square) {
-		gen.list.Add(move.EncodeMove(from, to))
+		moves.ForEachSetBit(func(to square.Square) {
+			fn(move.EncodeMove(from, to))
+		})
 	})
 }
 

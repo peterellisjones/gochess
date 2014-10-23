@@ -3,38 +3,88 @@ package movegeneration
 import (
 	"github.com/peterellisjones/gochess/bitboard"
 	"github.com/peterellisjones/gochess/board"
+	"github.com/peterellisjones/gochess/move"
 	"github.com/peterellisjones/gochess/piece"
 	"github.com/peterellisjones/gochess/side"
 	"github.com/peterellisjones/gochess/square"
 )
 
-// AddRookMoves generates rook moves
-func (gen *Generator) AddRookMoves(sd side.Side) {
-	piece := piece.ForSide(piece.Rook, sd)
-	gen.addSliderMoves(piece, getRookRayAttacks)
+func (gen *Generator) ForEachRookMove(sd side.Side, fn func(move.Move)) {
+	pc := piece.ForSide(piece.Rook, sd)
+	gen.forEachSliderMove(pc, getRookRayAttacks, fn)
 }
 
-// AddBishopMoves generates bishop moves
-func (gen *Generator) AddBishopMoves(sd side.Side) {
-	piece := piece.ForSide(piece.Bishop, sd)
-	gen.addSliderMoves(piece, getBishopRayAttacks)
+func (gen *Generator) ForEachBishopMove(sd side.Side, fn func(move.Move)) {
+	pc := piece.ForSide(piece.Bishop, sd)
+	gen.forEachSliderMove(pc, getBishopRayAttacks, fn)
 }
 
-// AddQueenMoves generates queen moves
-func (gen *Generator) AddQueenMoves(sd side.Side) {
-	piece := piece.ForSide(piece.Queen, sd)
-	gen.addSliderMoves(piece, getQueenRayAttacks)
+func (gen *Generator) ForEachQueenMove(sd side.Side, fn func(move.Move)) {
+	pc := piece.ForSide(piece.Queen, sd)
+	gen.forEachSliderMove(pc, getQueenRayAttacks, fn)
 }
 
-func (gen *Generator) addSliderMoves(piece piece.Piece, getRayAttacks getAttacks) {
-	enemy := gen.board.BBSide(piece.Side().Other())
+func (gen *Generator) ForEachNonDiagonalMove(sd side.Side, fn func(move.Move)) {
+	queen := piece.ForSide(piece.Queen, sd)
+	rook := piece.ForSide(piece.Rook, sd)
+
+	enemy := gen.board.BBSide(sd.Other())
 	occupied := gen.board.BBOccupied()
 
-	gen.board.EachPieceOfType(piece, func(from square.Square) {
+	gen.board.EachPieceOfTypes(func(from square.Square) {
+		targets := getRookRayAttacks(occupied, from)
+		captures := targets & enemy
+		nonCaptures := targets & (^occupied)
+
+		captures.ForEachSetBit(func(to square.Square) {
+			fn(move.EncodeCapture(from, to))
+		})
+
+		nonCaptures.ForEachSetBit(func(to square.Square) {
+			fn(move.EncodeMove(from, to))
+		})
+	}, queen, rook)
+}
+
+func (gen *Generator) ForEachDiagonalMove(sd side.Side, fn func(move.Move)) {
+	queen := piece.ForSide(piece.Queen, sd)
+	bishop := piece.ForSide(piece.Bishop, sd)
+
+	enemy := gen.board.BBSide(sd.Other())
+	occupied := gen.board.BBOccupied()
+
+	gen.board.EachPieceOfTypes(func(from square.Square) {
+		targets := getBishopRayAttacks(occupied, from)
+		captures := targets & enemy
+		nonCaptures := targets & (^occupied)
+
+		captures.ForEachSetBit(func(to square.Square) {
+			fn(move.EncodeCapture(from, to))
+		})
+
+		nonCaptures.ForEachSetBit(func(to square.Square) {
+			fn(move.EncodeMove(from, to))
+		})
+	}, queen, bishop)
+}
+
+func (gen *Generator) forEachSliderMove(pc piece.Piece, getRayAttacks getAttacks, fn func(move.Move)) {
+	enemy := gen.board.BBSide(pc.Side().Other())
+	occupied := gen.board.BBOccupied()
+
+	gen.board.EachPieceOfType(pc, func(from square.Square) {
+
 		targets := getRayAttacks(occupied, from)
 		captures := targets & enemy
 		nonCaptures := targets & (^occupied)
-		gen.addMoves(nonCaptures, captures, from)
+
+		captures.ForEachSetBit(func(to square.Square) {
+			fn(move.EncodeCapture(from, to))
+		})
+
+		nonCaptures.ForEachSetBit(func(to square.Square) {
+			fn(move.EncodeMove(from, to))
+		})
 	})
 }
 

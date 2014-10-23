@@ -6,8 +6,7 @@ import (
 	"github.com/peterellisjones/gochess/side"
 )
 
-// AddCastles generates castles
-func (gen *Generator) AddCastles(side side.Side) {
+func (gen *Generator) ForEachCastle(side side.Side, fn func(move.Move)) {
 	gen.board.CastlingRights().RightsForSide(side).ForEach(func(castle uint) {
 
 		// check no blocking pieces
@@ -36,6 +35,6 @@ func (gen *Generator) AddCastles(side side.Side) {
 
 		// OK, add move
 		mv := []move.Move{move.KingSideCastle, move.QueenSideCastle}[castle&1]
-		gen.list.Add(mv)
+		fn(mv)
 	})
 }

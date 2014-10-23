@@ -16,7 +16,7 @@ var _ = Describe("Traverse", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		count := 0
-		Traverse(bd, 2, func(depth int, mv move.Move, bd *board.Board) {
+		Traverse(bd, 2, func(depth int, mv move.Move) {
 			Expect(validate.Board(bd)).ToNot(HaveOccurred())
 			count++
 		})

@@ -3,8 +3,8 @@ package movegeneration_test
 import (
 	. "github.com/onsi/ginkgo"
 	"github.com/peterellisjones/gochess/board"
+	"github.com/peterellisjones/gochess/move"
 	. "github.com/peterellisjones/gochess/movegeneration"
-	"github.com/peterellisjones/gochess/movelist"
 )
 
 var _ = Describe("GenerateRookMoves", func() {
@@ -16,8 +16,8 @@ var _ = Describe("GenerateRookMoves", func() {
 		},
 	}
 
-	ItGeneratesMovesFor(cases, func(bd *board.Board, list *movelist.MoveList) {
-		generator := New(bd, list)
-		generator.AddRookMoves(bd.SideToMove())
+	ItGeneratesMovesFor(cases, func(bd *board.Board) []move.Move {
+		gen := New(bd)
+		return gen.RookMoves(bd.SideToMove())
 	})
 })

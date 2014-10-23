@@ -26,7 +26,7 @@ func expectListContainsMoves(list *movelist.MoveList, moves ...string) {
 	}
 }
 
-type MoveGenerator func(bd *board.Board, list *movelist.MoveList)
+type MoveGenerator func(bd *board.Board) []move.Move
 
 func ItGeneratesMovesFor(cases map[string][]string, fn MoveGenerator) {
 	for fen, expectedMoves := range cases {
@@ -42,27 +42,23 @@ func ItGeneratesMovesFor(cases map[string][]string, fn MoveGenerator) {
 					err = validate.Board(bd)
 					Expect(err).ToNot(HaveOccurred())
 
-					list := movelist.New()
-					fn(bd, list)
+					list := fn(bd)
 					mv, err := move.Parse(mvStr)
 					Expect(err).ToNot(HaveOccurred())
-					Expect(list.Includes(mv)).To(BeTrue())
+					Expect(list).To(ContainElement(mv))
 				})
 			}
 
 			It(fmt.Sprintf("generates %d moves", len(exMoves)), func() {
 				bd, err := board.FromFen(fenStr)
 				Expect(err).ToNot(HaveOccurred())
-				list := movelist.New()
 
-				fn(bd, list)
-				list.ForEach(func(mv move.Move) {
+				list := fn(bd)
+				for _, mv := range list {
 					Expect(exMoves).To(ContainElement(mv.String()))
-				})
-
-				for _, mv := range exMoves {
-					Expect(list.ToStringArray()).To(ContainElement(mv))
 				}
+
+				Expect(len(list)).To(Equal(len(exMoves)))
 			})
 		})
 	}

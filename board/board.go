@@ -105,10 +105,24 @@ func (board *Board) Remove(sq square.Square) {
 }
 
 func (board *Board) EachPieceOfType(pc piece.Piece, fn func(square.Square)) {
+	// need to copy piecelist since may be reordered during make and unmake
+	pieceList := board.pieceLists[pc-2]
 	size := board.pieceListsSizes[pc-2]
 	for i := 0; i < size; i++ {
-		sq := board.pieceLists[pc-2][i]
+		sq := pieceList[i]
 		fn(sq)
+	}
+}
+
+func (board *Board) EachPieceOfTypes(fn func(square.Square), pcs ...piece.Piece) {
+	for _, pc := range pcs {
+		// need to copy piecelist since may be reordered during make and unmake
+		pieceList := board.pieceLists[pc-2]
+		size := board.pieceListsSizes[pc-2]
+		for i := 0; i < size; i++ {
+			sq := pieceList[i]
+			fn(sq)
+		}
 	}
 }
 
