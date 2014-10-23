@@ -12,8 +12,8 @@ type Generator struct {
 }
 
 // New returns a new move generator
-func New(bd *board.Board) Generator {
-	return Generator{
+func New(bd *board.Board) *Generator {
+	return &Generator{
 		board: bd,
 	}
 }

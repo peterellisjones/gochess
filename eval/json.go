@@ -18,7 +18,7 @@ type decodedJSON struct {
 	PieceValues []pieceValuesJSON `json:"pieces"`
 }
 
-func (values *Values) ToJSON() string {
+func (eval *Eval) ToJSON() string {
 	d := decodedJSON{
 		PieceValues: []pieceValuesJSON{},
 	}
@@ -27,12 +27,12 @@ func (values *Values) ToJSON() string {
 		pc := piece.Piece(i*2 + 2)
 		pieceValues := pieceValuesJSON{}
 		pieceValues.Name = pc.TypeName()
-		pieceValues.Value = values.PieceValue(pc)
+		pieceValues.Value = eval.PieceValue(pc)
 
 		squareValues := [8][8]int{}
 
 		square.ForEach(func(sq square.Square) {
-			squareValues[sq.Flip()>>3][sq&7] = values.PieceSquareValue(pc, sq)
+			squareValues[sq.Flip()>>3][sq&7] = eval.PieceSquareValue(pc, sq)
 		})
 
 		pieceValues.SquareValues = squareValues
@@ -43,7 +43,7 @@ func (values *Values) ToJSON() string {
 	return string(bytes)
 }
 
-func Load(path string) (*Values, error) {
+func Load(path string) (*Eval, error) {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -58,24 +58,24 @@ func Load(path string) (*Values, error) {
 		return nil, err
 	}
 
-	values := Values{
+	eval := Eval{
 		pieceValues:       pieceValuesFromJSON(d),
 		pieceSquareValues: pieceSquareValuesFromJSON(d),
 	}
 
-	values.castleValues[0] = 0 +
-		values.PieceSquareValue(piece.WhiteKing, square.G1) -
-		values.PieceSquareValue(piece.WhiteKing, square.E1) +
-		values.PieceSquareValue(piece.WhiteRook, square.F1) -
-		values.PieceSquareValue(piece.WhiteRook, square.H1)
+	eval.castleValues[0] = 0 +
+		eval.PieceSquareValue(piece.WhiteKing, square.G1) -
+		eval.PieceSquareValue(piece.WhiteKing, square.E1) +
+		eval.PieceSquareValue(piece.WhiteRook, square.F1) -
+		eval.PieceSquareValue(piece.WhiteRook, square.H1)
 
-	values.castleValues[1] = 0 +
-		values.PieceSquareValue(piece.WhiteKing, square.C1) -
-		values.PieceSquareValue(piece.WhiteKing, square.E1) +
-		values.PieceSquareValue(piece.WhiteRook, square.D1) -
-		values.PieceSquareValue(piece.WhiteRook, square.A1)
+	eval.castleValues[1] = 0 +
+		eval.PieceSquareValue(piece.WhiteKing, square.C1) -
+		eval.PieceSquareValue(piece.WhiteKing, square.E1) +
+		eval.PieceSquareValue(piece.WhiteRook, square.D1) -
+		eval.PieceSquareValue(piece.WhiteRook, square.A1)
 
-	return &values, nil
+	return &eval, nil
 }
 
 func pieceValuesFromJSON(d decodedJSON) [6]int {

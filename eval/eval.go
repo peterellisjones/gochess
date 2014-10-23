@@ -8,42 +8,42 @@ import (
 	"github.com/peterellisjones/gochess/square"
 )
 
-func Board(values *Values, bd *board.Board) int {
+func (eval *Eval) Board(bd *board.Board) int {
 	score := 0
 
 	bd.ForEachPieceOfSide(side.White, func(pc piece.Piece, sq square.Square) {
-		score += values.PieceValue(pc)
-		score += values.PieceSquareValue(pc, sq)
+		score += eval.PieceValue(pc)
+		score += eval.PieceSquareValue(pc, sq)
 	})
 
 	bd.ForEachPieceOfSide(side.Black, func(pc piece.Piece, sq square.Square) {
-		score -= values.PieceValue(pc)
-		score -= values.PieceSquareValue(pc, sq)
+		score -= eval.PieceValue(pc)
+		score -= eval.PieceSquareValue(pc, sq)
 	})
 
 	return score
 }
 
-func Move(values *Values, bd *board.Board, mv move.Move) int {
+func (eval *Eval) Move(bd *board.Board, mv move.Move) int {
 	if mv.IsCastle() {
-		return values.CastleValue(mv)
+		return eval.CastleValue(mv)
 	}
 
 	pc := bd.At(mv.From())
 
 	score := 0
-	score = values.PieceSquareValue(pc, mv.To()) - values.PieceSquareValue(pc, mv.From())
+	score = eval.PieceSquareValue(pc, mv.To()) - eval.PieceSquareValue(pc, mv.From())
 
 	if mv.IsCapture() {
 		if mv.IsEpCapture() {
-			score += values.PieceValue(piece.ForSide(piece.Pawn, pc.Side().Other()))
+			score += eval.PieceValue(piece.ForSide(piece.Pawn, pc.Side().Other()))
 		} else {
-			score += values.PieceValue(bd.At(mv.To()))
+			score += eval.PieceValue(bd.At(mv.To()))
 		}
 	}
 
 	if mv.IsPromotion() {
-		score += values.PieceValue(mv.PromoteTo()) - values.PieceValue(pc)
+		score += eval.PieceValue(mv.PromoteTo()) - eval.PieceValue(pc)
 	}
 
 	return score
