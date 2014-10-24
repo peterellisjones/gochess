@@ -29,22 +29,79 @@ type Score struct {
 	Score int
 }
 
-func (search *Search) BestMove(depth int) Score {
+func (search *Search) BestMove() Score {
 
 	best := Score{
 		Score: -1000000,
 		Move:  move.Null,
 	}
 
-	search.gen.ForEachMove(search.board.SideToMove(), func(mv move.Move) {
+	search.gen.ForEachMove(search.board.SideToMove(), func(mv move.Move) bool {
 		s := search.eval.Move(search.board, mv)
+
 		if s > best.Score {
 			best = Score{
 				Score: s,
 				Move:  mv,
 			}
 		}
+		return false
 	})
 
 	return best
+}
+
+func (search *Search) Negamax(depth int) (move.Move, int) {
+	bestScore := -100000
+	bestMove := move.Null
+
+	search.gen.ForEachMove(search.board.SideToMove(), func(mv move.Move) bool {
+		s := search.eval.Move(search.board, mv)
+
+		if depth > 1 {
+			search.stack.Make(mv)
+			_, d := search.Negamax(depth - 1)
+			s -= d
+			search.stack.UnMake()
+		}
+
+		if s > bestScore {
+			bestScore = s
+			bestMove = mv
+		}
+		return false
+	})
+
+	return bestMove, bestScore
+}
+
+func (search *Search) AlphaBeta(alpha int, beta int, depth int) (move.Move, int) {
+
+	bestMove := move.Null
+
+	search.gen.ForEachMove(search.board.SideToMove(), func(mv move.Move) bool {
+		s := search.eval.Move(search.board, mv)
+
+		if depth > 1 {
+			search.stack.Make(mv)
+			_, d := search.AlphaBeta(-beta, -alpha, depth-1)
+			s -= d
+			search.stack.UnMake()
+		}
+
+		if s >= beta {
+			alpha = beta
+			bestMove = mv
+			return true
+		}
+
+		if s > alpha {
+			bestMove = mv
+			alpha = s
+		}
+
+		return false
+	})
+
+	return bestMove, alpha
 }

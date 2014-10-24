@@ -6,8 +6,8 @@ import (
 	"github.com/peterellisjones/gochess/side"
 )
 
-func (gen *Generator) ForEachCastle(side side.Side, fn func(move.Move)) {
-	gen.board.CastlingRights().RightsForSide(side).ForEach(func(castle uint) {
+func (gen *Generator) ForEachCastle(side side.Side, fn func(move.Move) bool) bool {
+	return gen.board.CastlingRights().RightsForSide(side).ForEach(func(castle uint) bool {
 
 		// check no blocking pieces
 		moveMask := [4]bb.Bitboard{
@@ -18,7 +18,7 @@ func (gen *Generator) ForEachCastle(side side.Side, fn func(move.Move)) {
 		}[castle]
 
 		if (moveMask & gen.board.BBEmpty()) != moveMask {
-			return
+			return false
 		}
 
 		// check king doesn't pass through check
@@ -30,11 +30,11 @@ func (gen *Generator) ForEachCastle(side side.Side, fn func(move.Move)) {
 		}[castle]
 
 		if AreSquaresAttacked(gen.board, checkMask, side.Other()) {
-			return
+			return false
 		}
 
 		// OK, add move
 		mv := []move.Move{move.KingSideCastle, move.QueenSideCastle}[castle&1]
-		fn(mv)
+		return fn(mv)
 	})
 }

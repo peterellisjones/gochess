@@ -24,7 +24,7 @@ const (
 
 // Null Move
 const (
-	Null = 0
+	Null = Move(0)
 )
 
 /*

@@ -69,13 +69,16 @@ func (right Right) String() string {
 }
 
 // ForEach executes a function for each right in the set of rights
-func (right Right) ForEach(fn func(uint)) {
+func (right Right) ForEach(fn func(uint) bool) bool {
 	for i := uint(0); i < 4; i++ {
 		r := right & (Right(1) << i)
 		if r != NoRights {
-			fn(i)
+			if fn(i) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 // Parse parses a string representation of a set of castling rights

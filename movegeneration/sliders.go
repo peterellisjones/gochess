@@ -9,81 +9,87 @@ import (
 	"github.com/peterellisjones/gochess/square"
 )
 
-func (gen *Generator) ForEachRookMove(sd side.Side, fn func(move.Move)) {
+func (gen *Generator) ForEachRookMove(sd side.Side, fn func(move.Move) bool) bool {
 	pc := piece.ForSide(piece.Rook, sd)
-	gen.forEachSliderMove(pc, getRookRayAttacks, fn)
+	return gen.forEachSliderMove(pc, getRookRayAttacks, fn)
 }
 
-func (gen *Generator) ForEachBishopMove(sd side.Side, fn func(move.Move)) {
+func (gen *Generator) ForEachBishopMove(sd side.Side, fn func(move.Move) bool) bool {
 	pc := piece.ForSide(piece.Bishop, sd)
-	gen.forEachSliderMove(pc, getBishopRayAttacks, fn)
+	return gen.forEachSliderMove(pc, getBishopRayAttacks, fn)
 }
 
-func (gen *Generator) ForEachQueenMove(sd side.Side, fn func(move.Move)) {
+func (gen *Generator) ForEachQueenMove(sd side.Side, fn func(move.Move) bool) bool {
 	pc := piece.ForSide(piece.Queen, sd)
-	gen.forEachSliderMove(pc, getQueenRayAttacks, fn)
+	return gen.forEachSliderMove(pc, getQueenRayAttacks, fn)
 }
 
-func (gen *Generator) ForEachNonDiagonalMove(sd side.Side, fn func(move.Move)) {
+func (gen *Generator) ForEachNonDiagonalMove(sd side.Side, fn func(move.Move) bool) bool {
 	queen := piece.ForSide(piece.Queen, sd)
 	rook := piece.ForSide(piece.Rook, sd)
 
 	enemy := gen.board.BBSide(sd.Other())
 	occupied := gen.board.BBOccupied()
 
-	gen.board.EachPieceOfTypes(func(from square.Square) {
+	return gen.board.EachPieceOfTypes(func(from square.Square) bool {
 		targets := getRookRayAttacks(occupied, from)
 		captures := targets & enemy
 		nonCaptures := targets & (^occupied)
 
-		captures.ForEachSetBit(func(to square.Square) {
-			fn(move.EncodeCapture(from, to))
-		})
+		if captures.ForEachSetBitWithBreak(func(to square.Square) bool {
+			return fn(move.EncodeCapture(from, to))
+		}) {
+			return true
+		}
 
-		nonCaptures.ForEachSetBit(func(to square.Square) {
-			fn(move.EncodeMove(from, to))
+		return nonCaptures.ForEachSetBitWithBreak(func(to square.Square) bool {
+			return fn(move.EncodeMove(from, to))
 		})
 	}, queen, rook)
 }
 
-func (gen *Generator) ForEachDiagonalMove(sd side.Side, fn func(move.Move)) {
+func (gen *Generator) ForEachDiagonalMove(sd side.Side, fn func(move.Move) bool) bool {
 	queen := piece.ForSide(piece.Queen, sd)
 	bishop := piece.ForSide(piece.Bishop, sd)
 
 	enemy := gen.board.BBSide(sd.Other())
 	occupied := gen.board.BBOccupied()
 
-	gen.board.EachPieceOfTypes(func(from square.Square) {
+	return gen.board.EachPieceOfTypes(func(from square.Square) bool {
 		targets := getBishopRayAttacks(occupied, from)
 		captures := targets & enemy
 		nonCaptures := targets & (^occupied)
 
-		captures.ForEachSetBit(func(to square.Square) {
-			fn(move.EncodeCapture(from, to))
-		})
+		if captures.ForEachSetBitWithBreak(func(to square.Square) bool {
+			return fn(move.EncodeCapture(from, to))
+		}) {
+			return true
+		}
 
-		nonCaptures.ForEachSetBit(func(to square.Square) {
-			fn(move.EncodeMove(from, to))
+		return nonCaptures.ForEachSetBitWithBreak(func(to square.Square) bool {
+			return fn(move.EncodeMove(from, to))
 		})
 	}, queen, bishop)
 }
 
-func (gen *Generator) forEachSliderMove(pc piece.Piece, getRayAttacks getAttacks, fn func(move.Move)) {
+func (gen *Generator) forEachSliderMove(pc piece.Piece, getRayAttacks getAttacks, fn func(move.Move) bool) bool {
 	enemy := gen.board.BBSide(pc.Side().Other())
 	occupied := gen.board.BBOccupied()
 
-	gen.board.EachPieceOfType(pc, func(from square.Square) {
+	return gen.board.EachPieceOfType(pc, func(from square.Square) bool {
 
 		targets := getRayAttacks(occupied, from)
 		captures := targets & enemy
 		nonCaptures := targets & (^occupied)
 
-		captures.ForEachSetBit(func(to square.Square) {
-			fn(move.EncodeCapture(from, to))
-		})
+		if captures.ForEachSetBitWithBreak(func(to square.Square) bool {
+			return fn(move.EncodeCapture(from, to))
+		}) {
+			return true
+		}
 
-		nonCaptures.ForEachSetBit(func(to square.Square) {
-			fn(move.EncodeMove(from, to))
+		return nonCaptures.ForEachSetBitWithBreak(func(to square.Square) bool {
+			return fn(move.EncodeMove(from, to))
 		})
 	})
 }

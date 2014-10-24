@@ -28,9 +28,9 @@ var kingMoves = [64]bitboard.Bitboard{
 	0x2838000000000000, 0x5070000000000000, 0xA0E0000000000000, 0x40C0000000000000,
 }
 
-func (gen *Generator) ForEachKingMove(side side.Side, fn func(move.Move)) {
+func (gen *Generator) ForEachKingMove(side side.Side, fn func(move.Move) bool) bool {
 	pc := piece.ForSide(piece.King, side)
-	gen.forEachLookupTableMove(pc, &kingMoves, fn)
+	return gen.forEachLookupTableMove(pc, &kingMoves, fn)
 }
 
 // GetKingAttackedSquares returns the set of king attacks
@@ -38,8 +38,9 @@ func GetKingAttackedSquares(bd *board.Board, attacker side.Side) bitboard.Bitboa
 	piece := piece.ForSide(piece.King, attacker)
 	attackedSquares := bitboard.Empty
 
-	bd.EachPieceOfType(piece, func(from square.Square) {
+	bd.EachPieceOfType(piece, func(from square.Square) bool {
 		attackedSquares |= kingMoves[from]
+		return false
 	})
 	return attackedSquares
 }

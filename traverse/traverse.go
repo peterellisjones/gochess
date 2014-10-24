@@ -37,12 +37,12 @@ func Traverse(board *bd.Board, depth int, fn func(int, mv.Move)) {
 func (trav *traverser) traverse(depth int, fn func(int, mv.Move)) {
 	generator := gen.New(trav.board)
 
-	generator.ForEachMove(trav.board.SideToMove(), func(move mv.Move) {
+	generator.ForEachMove(trav.board.SideToMove(), func(move mv.Move) bool {
 
 		trav.stack.Make(move)
 		if gen.InCheck(trav.board, trav.board.SideToMove().Other()) {
 			trav.stack.UnMake()
-			return
+			return false
 		}
 		stackDepth := trav.stack.Depth()
 		fn(stackDepth, move)
@@ -51,5 +51,6 @@ func (trav *traverser) traverse(depth int, fn func(int, mv.Move)) {
 			trav.traverse(depth+1, fn)
 		}
 		trav.stack.UnMake()
+		return false
 	})
 }

@@ -10,20 +10,26 @@ import (
 )
 
 // GeneratePawnMoves generates pawn moves
-func (gen *Generator) ForEachPawnMove(sd side.Side, fn func(mv move.Move)) {
+func (gen *Generator) ForEachPawnMove(sd side.Side, fn func(mv move.Move) bool) bool {
 	pawns := gen.board.BBPiece(piece.ForSide(piece.Pawn, sd))
 	diff := [2]square.Square{square.Square(56), square.Square(8)}[sd]
 
 	pushes := pawns.CircularRightShift(diff) & gen.board.BBEmpty()
 	promotions := pushes & (bitboard.Row1 | bitboard.Row8)
-	gen.forEachPawnPromotion(promotions, diff, fn)
+	if gen.forEachPawnPromotion(promotions, diff, fn) {
+		return true
+	}
 
 	pushes &= ^promotions
-	gen.forEachPawnPush(pushes, diff, fn)
+	if gen.forEachPawnPush(pushes, diff, fn) {
+		return true
+	}
 
 	doublePushes := pushes.CircularRightShift(diff) & gen.board.BBEmpty()
 	doublePushes &= [2]bitboard.Bitboard{bitboard.Row4, bitboard.Row5}[sd]
-	gen.forEachDoublePawnPush(doublePushes, diff+diff, fn)
+	if gen.forEachDoublePawnPush(doublePushes, diff+diff, fn) {
+		return true
+	}
 
 	enemy := gen.board.BBSide(sd.Other())
 	for i := 0; i < 2; i++ {
@@ -43,65 +49,90 @@ func (gen *Generator) ForEachPawnMove(sd side.Side, fn func(mv move.Move)) {
 
 		captures := targets & enemy
 		capturePromotions := captures & (bitboard.Row1 | bitboard.Row8)
-		gen.forEachPawnCapturePromotion(capturePromotions, diff, fn)
+		if gen.forEachPawnCapturePromotion(capturePromotions, diff, fn) {
+			return true
+		}
 
 		captures &= ^capturePromotions
-		gen.forEachPawnCapture(captures, diff, fn)
+		if gen.forEachPawnCapture(captures, diff, fn) {
+			return true
+		}
 
 		epCaptures := targets & (bitboard.Bitboard(1) << gen.board.EpSquare())
-		gen.forEachPawnEpCapture(epCaptures, diff, fn)
+		if gen.forEachPawnEpCapture(epCaptures, diff, fn) {
+			return true
+		}
 	}
+	return false
 }
 
-func (gen *Generator) forEachPawnPush(targets bitboard.Bitboard, diff square.Square, fn func(move.Move)) {
-	targets.ForEachSetBit(func(to square.Square) {
+func (gen *Generator) forEachPawnPush(targets bitboard.Bitboard, diff square.Square, fn func(move.Move) bool) bool {
+	return targets.ForEachSetBitWithBreak(func(to square.Square) bool {
 		from := to.CircularTranslate(diff)
 		move := move.EncodeMove(from, to)
-		fn(move)
+		return fn(move)
 	})
 }
 
-func (gen *Generator) forEachDoublePawnPush(targets bitboard.Bitboard, diff square.Square, fn func(move.Move)) {
-	targets.ForEachSetBit(func(to square.Square) {
+func (gen *Generator) forEachDoublePawnPush(targets bitboard.Bitboard, diff square.Square, fn func(move.Move) bool) bool {
+	return targets.ForEachSetBitWithBreak(func(to square.Square) bool {
 		from := to.CircularTranslate(diff)
 		move := move.EncodeDoublePawnPush(from, to)
-		fn(move)
+		return fn(move)
 	})
 }
 
-func (gen *Generator) forEachPawnCapture(targets bitboard.Bitboard, diff square.Square, fn func(mv move.Move)) {
-	targets.ForEachSetBit(func(to square.Square) {
+func (gen *Generator) forEachPawnCapture(targets bitboard.Bitboard, diff square.Square, fn func(mv move.Move) bool) bool {
+	return targets.ForEachSetBitWithBreak(func(to square.Square) bool {
 		from := to.CircularTranslate(diff)
 		move := move.EncodeCapture(from, to)
-		fn(move)
+		return fn(move)
 	})
 }
 
-func (gen *Generator) forEachPawnEpCapture(targets bitboard.Bitboard, diff square.Square, fn func(mv move.Move)) {
-	targets.ForEachSetBit(func(to square.Square) {
+func (gen *Generator) forEachPawnEpCapture(targets bitboard.Bitboard, diff square.Square, fn func(mv move.Move) bool) bool {
+	return targets.ForEachSetBitWithBreak(func(to square.Square) bool {
 		from := to.CircularTranslate(diff)
 		move := move.EncodeEpCapture(from, to)
-		fn(move)
+		return fn(move)
 	})
 }
 
-func (gen *Generator) forEachPawnPromotion(targets bitboard.Bitboard, diff square.Square, fn func(move.Move)) {
-	targets.ForEachSetBit(func(to square.Square) {
+func (gen *Generator) forEachPawnPromotion(targets bitboard.Bitboard, diff square.Square, fn func(move.Move) bool) bool {
+	return targets.ForEachSetBitWithBreak(func(to square.Square) bool {
 		from := to.CircularTranslate(diff)
-		fn(move.EncodePromotion(from, to, piece.Queen))
-		fn(move.EncodePromotion(from, to, piece.Rook))
-		fn(move.EncodePromotion(from, to, piece.Bishop))
-		fn(move.EncodePromotion(from, to, piece.Knight))
+		if fn(move.EncodePromotion(from, to, piece.Queen)) {
+			return true
+		}
+		if fn(move.EncodePromotion(from, to, piece.Rook)) {
+			return true
+		}
+		if fn(move.EncodePromotion(from, to, piece.Bishop)) {
+			return true
+		}
+		if fn(move.EncodePromotion(from, to, piece.Knight)) {
+			return true
+		}
+		return false
 	})
 }
 
-func (gen *Generator) forEachPawnCapturePromotion(targets bitboard.Bitboard, diff square.Square, fn func(mv move.Move)) {
-	targets.ForEachSetBit(func(to square.Square) {
+func (gen *Generator) forEachPawnCapturePromotion(targets bitboard.Bitboard, diff square.Square, fn func(mv move.Move) bool) bool {
+	return targets.ForEachSetBitWithBreak(func(to square.Square) bool {
 		from := to.CircularTranslate(diff)
-		fn(move.EncodeCapturePromotion(from, to, piece.Queen))
-		fn(move.EncodeCapturePromotion(from, to, piece.Rook))
-		fn(move.EncodeCapturePromotion(from, to, piece.Bishop))
-		fn(move.EncodeCapturePromotion(from, to, piece.Knight))
+		if fn(move.EncodeCapturePromotion(from, to, piece.Queen)) {
+			return true
+		}
+		if fn(move.EncodeCapturePromotion(from, to, piece.Rook)) {
+			return true
+		}
+		if fn(move.EncodeCapturePromotion(from, to, piece.Bishop)) {
+			return true
+		}
+		if fn(move.EncodeCapturePromotion(from, to, piece.Knight)) {
+			return true
+		}
+		return false
 	})
 }
 

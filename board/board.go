@@ -54,6 +54,20 @@ func (board *Board) ForEachPieceOfSide(sd side.Side, fn func(piece.Piece, square
 	}
 }
 
+func (board *Board) ForEachPieceOfSideWithBreak(sd side.Side, fn func(piece.Piece, square.Square) bool) bool {
+	for pc := piece.ForSide(piece.Pawn, sd); pc <= piece.BlackKing; pc += 2 {
+		pcIdx := pc - 2
+		size := board.pieceListsSizes[pcIdx]
+		for i := 0; i < size; i++ {
+			sq := board.pieceLists[pcIdx][i]
+			if fn(pc, sq) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (board *Board) PieceListIndex(sq square.Square) int {
 	return board.pieceListsIdxs[sq]
 }
@@ -104,26 +118,32 @@ func (board *Board) Remove(sq square.Square) {
 	board.pieceListsSizes[pcIdx]--
 }
 
-func (board *Board) EachPieceOfType(pc piece.Piece, fn func(square.Square)) {
+func (board *Board) EachPieceOfType(pc piece.Piece, fn func(square.Square) bool) bool {
 	// need to copy piecelist since may be reordered during make and unmake
 	pieceList := board.pieceLists[pc-2]
 	size := board.pieceListsSizes[pc-2]
 	for i := 0; i < size; i++ {
 		sq := pieceList[i]
-		fn(sq)
+		if fn(sq) {
+			return true
+		}
 	}
+	return false
 }
 
-func (board *Board) EachPieceOfTypes(fn func(square.Square), pcs ...piece.Piece) {
+func (board *Board) EachPieceOfTypes(fn func(square.Square) bool, pcs ...piece.Piece) bool {
 	for _, pc := range pcs {
 		// need to copy piecelist since may be reordered during make and unmake
 		pieceList := board.pieceLists[pc-2]
 		size := board.pieceListsSizes[pc-2]
 		for i := 0; i < size; i++ {
 			sq := pieceList[i]
-			fn(sq)
+			if fn(sq) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 // At returns the piece on a given square (if any)

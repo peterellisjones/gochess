@@ -28,26 +28,28 @@ var knightMoves = [64]bitboard.Bitboard{
 	0x0044280000000000, 0x0088500000000000, 0x0010A00000000000, 0x0020400000000000,
 }
 
-func (gen *Generator) ForEachKnightMove(side side.Side, fn func(move.Move)) {
+func (gen *Generator) ForEachKnightMove(side side.Side, fn func(move.Move) bool) bool {
 	pc := piece.ForSide(piece.Knight, side)
-	gen.forEachLookupTableMove(pc, &knightMoves, fn)
+	return gen.forEachLookupTableMove(pc, &knightMoves, fn)
 }
 
-func (gen *Generator) forEachLookupTableMove(piece piece.Piece, table *[64]bitboard.Bitboard, fn func(move.Move)) {
+func (gen *Generator) forEachLookupTableMove(piece piece.Piece, table *[64]bitboard.Bitboard, fn func(move.Move) bool) bool {
 	enemy := gen.board.BBSide(piece.Side().Other())
 	empty := gen.board.BBEmpty()
 
-	gen.board.EachPieceOfType(piece, func(from square.Square) {
+	return gen.board.EachPieceOfType(piece, func(from square.Square) bool {
 		targets := table[from]
 		captures := targets & enemy
 		moves := targets & empty
 
-		captures.ForEachSetBit(func(to square.Square) {
-			fn(move.EncodeCapture(from, to))
-		})
+		if captures.ForEachSetBitWithBreak(func(to square.Square) bool {
+			return fn(move.EncodeCapture(from, to))
+		}) {
+			return true
+		}
 
-		moves.ForEachSetBit(func(to square.Square) {
-			fn(move.EncodeMove(from, to))
+		return moves.ForEachSetBitWithBreak(func(to square.Square) bool {
+			return fn(move.EncodeMove(from, to))
 		})
 	})
 }
@@ -57,8 +59,9 @@ func GetKnightAttackedSquares(bd *board.Board, attacker side.Side) bitboard.Bitb
 	piece := piece.ForSide(piece.Knight, attacker)
 	attackedSquares := bitboard.Empty
 
-	bd.EachPieceOfType(piece, func(from square.Square) {
+	bd.EachPieceOfType(piece, func(from square.Square) bool {
 		attackedSquares |= knightMoves[from]
+		return false
 	})
 	return attackedSquares
 }

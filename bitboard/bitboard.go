@@ -41,6 +41,15 @@ func (bitboard Bitboard) ForEachSetBit(fn func(sq.Square)) {
 	}
 }
 
+func (bitboard Bitboard) ForEachSetBitWithBreak(fn func(sq.Square) bool) bool {
+	for ; bitboard != 0; bitboard &= bitboard - 1 {
+		if fn(bitboard.BitScanForward()) {
+			return true
+		}
+	}
+	return false
+}
+
 // BitCount returns the number of set bits
 func (bitboard Bitboard) BitCount() int {
 	count := 0
