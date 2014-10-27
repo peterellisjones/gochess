@@ -8,6 +8,9 @@ import (
 	"github.com/peterellisjones/gochess/stack"
 )
 
+const ScoreMin = -1000000
+const ScoreMax = 1000000
+
 type Search struct {
 	stack *stack.Stack
 	eval  *eval.Eval
@@ -32,7 +35,7 @@ type Score struct {
 func (search *Search) BestMove() Score {
 
 	best := Score{
-		Score: -1000000,
+		Score: ScoreMin,
 		Move:  move.Null,
 	}
 
@@ -52,18 +55,24 @@ func (search *Search) BestMove() Score {
 }
 
 func (search *Search) Negamax(depth int) (move.Move, int) {
-	bestScore := -100000
+	bestScore := ScoreMin
 	bestMove := move.Null
 
 	search.gen.ForEachMove(search.board.SideToMove(), func(mv move.Move) bool {
 		s := search.eval.Move(search.board, mv)
 
-		if depth > 1 {
+		if depth > 1 && s < 10000 {
 			search.stack.Make(mv)
 			_, d := search.Negamax(depth - 1)
 			s -= d
 			search.stack.UnMake()
 		}
+
+		//fmt.Printf("%s, %s => %d\n", search.board.SideToMove(), mv.String(), s)
+		//
+		// if depth == 3 {
+		// 	fmt.Printf("BLACK %s => %d\n", mv.String(), s)
+		// }
 
 		if s > bestScore {
 			bestScore = s
@@ -75,33 +84,67 @@ func (search *Search) Negamax(depth int) (move.Move, int) {
 	return bestMove, bestScore
 }
 
-func (search *Search) AlphaBeta(alpha int, beta int, depth int) (move.Move, int) {
+func (search *Search) AlphaBeta(depth int) (move.Move, int) {
+	return search.alphaBeta(ScoreMin, ScoreMax, depth)
+}
+
+func (search *Search) alphaBeta(alpha int, beta int, depth int) (move.Move, int) {
 
 	bestMove := move.Null
+	bestScore := ScoreMin
 
 	search.gen.ForEachMove(search.board.SideToMove(), func(mv move.Move) bool {
 		s := search.eval.Move(search.board, mv)
 
 		if depth > 1 {
 			search.stack.Make(mv)
-			_, d := search.AlphaBeta(-beta, -alpha, depth-1)
-			s -= d
+			s -= search.alphaBetaScore(-beta, -alpha, depth-1)
 			search.stack.UnMake()
 		}
 
 		if s >= beta {
-			alpha = beta
+			bestScore = s
 			bestMove = mv
 			return true
 		}
 
 		if s > alpha {
-			bestMove = mv
 			alpha = s
+			bestScore = s
+			bestMove = mv
 		}
 
 		return false
 	})
 
-	return bestMove, alpha
+	return bestMove, bestScore
+}
+
+func (search *Search) alphaBetaScore(alpha int, beta int, depth int) int {
+
+	ret := ScoreMin
+
+	search.gen.ForEachMove(search.board.SideToMove(), func(mv move.Move) bool {
+		s := search.eval.Move(search.board, mv)
+
+		if depth > 1 {
+			search.stack.Make(mv)
+			s -= search.alphaBetaScore(-beta, -alpha, depth-1)
+			search.stack.UnMake()
+		}
+
+		if s >= beta {
+			ret = beta
+			return true
+		}
+
+		if s > alpha {
+			alpha = s
+			ret = s
+		}
+
+		return false
+	})
+
+	return ret
 }
